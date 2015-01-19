@@ -5,43 +5,48 @@
 angular.module('StockPortfolioSimulator.controllers', [])
 
   /***** DASHBOARD *****/
-  .controller('DashCtrl', ['$scope', '$http',
-    function ($scope, $http) {
+  .controller('DashCtrl', ['$scope', 'User',
+    function ($scope, User) {
+      $scope.settings = User.settings;
       // Gather data from service
-      $scope.profileList = {
-        "One": {"id": "One", "price": 1134},
-        "Thing": {"id": "Thing", "price": 9},
-        "Second": {"id": "Second", "price": 55}
-      };
+      $scope.portfolioList = User.portfolios;
     }
   ])
   
   /***** PROFILE LIST *****/
-  .controller('ProfileViewCtrl', ['$scope', '$routeParams', '$http',
-    function ($scope, $routeParams, $http) {
+  .controller('PortfolioViewCtrl', ['$scope', '$routeParams', 'User',
+    function ($scope, $routeParams, User) {
       // Gather data from service
-      $scope.profileName = $routeParams.profileId;
-      $scope.stockList = {
-        "ABC": {"price": 1134},
-        "XYZ": {"price": 9},
-        "HHH": {"price": 55}
-      };
+      $scope.portfolioName = $routeParams.portfolioId;
+      // Gather data from service
+      $scope.stockList = User.portfolios[$scope.portfolioName].stocks;
     }
   ])
   
   /***** DASHBOARD *****/
-  .controller('ProfileNewCtrl', ['$scope', '$http',
-    function ($scope, $http) {
+  .controller('PortfolioNewCtrl', ['$scope', '$location', 'User',
+    function ($scope, $location, User) {
       // Gather data from service
-      $scope.profileName = "";
+      $scope.portfolios = User.portfolios
+      
+      $scope.portfolioName = "";
       $scope.stockList = {};
       
       $scope.addStock = function () {
         $scope.stockList [$scope.newStock] = {"price": 100};
+        $scope.newStock = "";
       }
       
       $scope.removeStock = function (name) {
         delete $scope.stockList [name];
+      }
+      
+      $scope.savePortfolio = function (name) {
+        $scope.portfolios[$scope.portfolioName] = {
+          "id": $scope.portfolioName,
+          "stocks": $scope.stockList
+        };
+        $location.path("/");
       }
     }
   ])

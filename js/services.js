@@ -9,11 +9,17 @@ angular.module('StockPortfolioSimulator.services', [])
   .service('User', [function (_) {
     return {
       // Holds all the user information
-      user: {
-        'settings': {},		// User settings
-        'porfolios': {}		// Profiles belonging to the user
-      },
-      clientList: [],
+      'settings': {},		// User settings
+      'portfolios': {
+        "One": {
+          "id": "One",
+          "stocks": {
+            "ABC": {"price": 1134},
+            "XYZ": {"price": 9},
+            "HHH": {"price": 55}
+          }
+        }
+      }		// Profiles belonging to the user
     };
   }])
   .factory('ServerRequests', ['$http', '$q', 'SERVERLOCATION', function($http, $q, SERVERLOCATION) {

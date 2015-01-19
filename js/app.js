@@ -15,13 +15,13 @@ angular.module('StockPortfolioSimulator', [
       controller: 'DashCtrl'
     }).
     
-    when('/profile/:profileId', {
-      templateUrl: 'partials/profile-view.html',
-      controller: 'ProfileViewCtrl'
+    when('/portfolio/:portfolioId', {
+      templateUrl: 'partials/portfolio-view.html',
+      controller: 'PortfolioViewCtrl'
     }).
     when('/new', {
-      templateUrl: 'partials/profile-new.html',
-      controller: 'ProfileNewCtrl'
+      templateUrl: 'partials/portfolio-new.html',
+      controller: 'PortfolioNewCtrl'
     }).
     
     when('/404', {

@@ -1,0 +1,41 @@
+<div id="app" class="container">
+  <div class="row">
+    <h2 class="page-header">New Portfolio called "{{portfolioName}}"</h2>
+    <!-- Show alternate text if there are no entries -->
+    <input type="text" class="form-control" ng-model="portfolioName" placeholder="Give your portfolio a name here">
+    <div id="orders-table" class="table-responsive">
+      <table class="table table-striped table-hover table-condensed">
+        <thead>
+          <tr class="info">
+            <th>Stock Name</th>
+            <th>Current Stock Price</th>
+            <th>Remove Stock</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr ng-repeat="(key, stock) in stockList">
+            <td>{{key}}</td>
+            <td>{{stock.price}}</td>
+            <td>
+              <button ng-click="removeStock(key)" type="button" class="btn btn-xs btn-danger">
+                <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>Remove</td>
+              </button>
+            </td>
+          </tr>
+          
+          <tr>
+            <td><input type="text" class="form-control" ng-model="newStock" placeholder="Enter a stock name here"></td>
+            <td>
+              <button ng-click="addStock(newStock)" type="button" class="btn btn-success">
+                <span class="glyphicon glyphicon-add" aria-hidden="true"></span>Add Stock</td>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <button ng-click="savePortfolio()" type="button" class="btn btn-info">
+      <span class="glyphicon glyphicon-save" aria-hidden="true"></span>Save New Portfolio</td>
+    </button>
+  </div>
+</div>

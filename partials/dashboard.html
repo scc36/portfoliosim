@@ -1,19 +1,19 @@
 <div id="app" class="container">
   <div class="row">
-    <h2 class="page-header">Welcome to the Stock Profile Simulator</h2>
+    <h2 class="page-header">Welcome to the Stock Portfolio Simulator</h2>
     
     <div id="stock-table" class="table-responsive">
       <table class="table table-striped table-hover table-condensed">
         <thead>
           <tr class="info">
-            <th>Profile Name</th>
-            <th>Current Profile Price</th>
+            <th>Portfolio Name</th>
+            <th>Number of Stocks</th>
           </tr>
         </thead>
         <tbody>
-          <tr ng-repeat="(key, profile) in profileList">
-            <td><a href=#/profile/{{profile.id}}>{{key}}</a></td>
-            <td>{{profile.price}}</td>
+          <tr ng-repeat="(key, portfolio) in portfolioList">
+            <td><a href=#/portfolio/{{portfolio.id}}>{{key}}</a></td>
+            <td>{{portfolio.stocks}}</td>
           </tr>
         </tbody>
       </table>
