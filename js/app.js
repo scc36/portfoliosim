@@ -6,7 +6,8 @@ angular.module('StockPortfolioSimulator', [
   'StockPortfolioSimulator.filters',
   'StockPortfolioSimulator.services',
   'StockPortfolioSimulator.directives',
-  'StockPortfolioSimulator.controllers'
+  'StockPortfolioSimulator.controllers',
+  'ui.bootstrap'
 ])
 .config(['$routeProvider', function($routeProvider) {
   $routeProvider.

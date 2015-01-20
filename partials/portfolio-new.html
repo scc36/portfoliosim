@@ -1,19 +1,30 @@
 <div id="app" class="container">
   <div class="row">
-    <h2 class="page-header">New Portfolio called "{{portfolioName}}"</h2>
-    <!-- Show alternate text if there are no entries -->
-    <input type="text" class="form-control" ng-model="portfolioName" placeholder="Give your portfolio a name here">
+    <h2 class="page-header">New Portfolio called "{{newPortfolio.id}}"</h2>
+    
+    <form name="newPortfolioInfo">
+      Name: <input type="text" ng-model="newPortfolio.id" class="form-control" placeholder="Give your portfolio a name here">
+      Start Date: <input type="date" id="startDate" name="input" ng-model="newPortfolio.startDate"
+        placeholder="yyyy-MM-dd" required />
+      End Date: <input type="date" id="endDate" name="input" ng-model="newPortfolio.endDate"
+        placeholder="yyyy-MM-dd" required />
+      <span class="error" ng-show="myForm.input.$error.required">
+        Fill in empty fields</span>
+      <span class="error" ng-show="myForm.input.$error.date">
+        Not a valid date!</span>
+    </form>
+    
     <div id="orders-table" class="table-responsive">
       <table class="table table-striped table-hover table-condensed">
         <thead>
           <tr class="info">
-            <th>Stock Name</th>
+            <th>Stock Symbol</th>
             <th>Current Stock Price</th>
             <th>Remove Stock</th>
           </tr>
         </thead>
         <tbody>
-          <tr ng-repeat="(key, stock) in stockList">
+          <tr ng-repeat="(key, stock) in newPortfolio.stocks">
             <td>{{key}}</td>
             <td>{{stock.price}}</td>
             <td>
@@ -24,7 +35,10 @@
           </tr>
           
           <tr>
-            <td><input type="text" class="form-control" ng-model="newStock" placeholder="Enter a stock name here"></td>
+            <td>
+              <input type="text" ng-model="newStock" placeholder="Type in stock name" typeahead="stock.value as stock.label for stock in getStocks($viewValue)" typeahead-loading="loadingStocks" class="form-control">
+              <i ng-show="loadingStocks" class="glyphicon glyphicon-refresh"> Getting suggestions</i>
+            </td>
             <td>
               <button ng-click="addStock(newStock)" type="button" class="btn btn-success">
                 <span class="glyphicon glyphicon-add" aria-hidden="true"></span>Add Stock</td>

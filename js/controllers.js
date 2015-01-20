@@ -24,28 +24,74 @@ angular.module('StockPortfolioSimulator.controllers', [])
   ])
   
   /***** DASHBOARD *****/
-  .controller('PortfolioNewCtrl', ['$scope', '$location', 'User',
-    function ($scope, $location, User) {
+  .controller('PortfolioNewCtrl', ['$scope', '$http', '$location', 'User', 'FinancialRequests',
+    function ($scope, $http, $location, User, FinancialRequests) {
       // Gather data from service
       $scope.portfolios = User.portfolios
       
-      $scope.portfolioName = "";
-      $scope.stockList = {};
+      $scope.newPortfolio = {}
+      $scope.newPortfolio.id = "";
+      $scope.newPortfolio.startDate = new Date();
+      $scope.newPortfolio.endDate = new Date();
+      $scope.newPortfolio.stocks = {};
+      $scope.mapped = [];
+      
+      $scope.getStocks = function(val) {
+        /*** symbol lookup based on user input
+          http://autoc.finance.yahoo.com/autoc?query=yahoo&callback=YAHOO.Finance.SymbolSuggest.ssCallback
+          Should normally have this as a service or factory, but yahoo
+          insists on a custom callback function, which angular doesn't support
+          so we're tricking the program into thinking there's a YAHOO library
+          and calling our own custom callback function.
+        */
+        var YAHOO = window.YAHOO = {Finance: {SymbolSuggest: {}}};
+        YAHOO.Finance.SymbolSuggest.ssCallback = function (data) {
+          var mapped = $.map(data.ResultSet.Result, function (e, i) {
+            return {
+              label: e.symbol + ' (' + e.name + ')',
+              value: e.symbol
+            };
+          });
+          $scope.mapped = mapped;
+        };
+        var url = "http://autoc.finance.yahoo.com/autoc";
+        url += "?query=" + val + "&callback=YAHOO.Finance.SymbolSuggest.ssCallback";
+        $http.jsonp(url)
+          .success(function(data){
+            return $scope.mapped;
+          }).
+          error(function(data) {
+            return $scope.mapped;
+          });
+        // TODO: Will need to delay this until after results
+        return $scope.mapped;
+      }
       
       $scope.addStock = function () {
-        $scope.stockList [$scope.newStock] = {"price": 100};
-        $scope.newStock = "";
+        var stringStartDate = $scope.newPortfolio.startDate.getFullYear() + "-" +
+          ($scope.newPortfolio.startDate.getMonth() + 1) + "-" +
+          $scope.newPortfolio.startDate.getDate();
+        FinancialRequests.getStockInfo($scope.newStock, stringStartDate)
+          .then(function(data) {
+            var price = "N/A";
+            if (data.query.results) {
+              var stockInfo = data.query.results.quote;
+              price = stockInfo.Close;
+            }
+            $scope.newPortfolio.stocks [$scope.newStock] = {"price": price};
+            $scope.newStock = "";
+          }, function(error) {
+            // Add error message
+          });
       }
       
       $scope.removeStock = function (name) {
-        delete $scope.stockList [name];
+        delete $scope.newPortfolio.stocks [name];
       }
       
       $scope.savePortfolio = function (name) {
-        $scope.portfolios[$scope.portfolioName] = {
-          "id": $scope.portfolioName,
-          "stocks": $scope.stockList
-        };
+        console.log($scope.newPortfolio);
+        $scope.portfolios[$scope.newPortfolio.id] = $scope.newPortfolio;
         $location.path("/");
       }
     }
