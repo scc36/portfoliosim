@@ -7,10 +7,16 @@ angular.module('StockPortfolioSimulator', [
   'StockPortfolioSimulator.services',
   'StockPortfolioSimulator.directives',
   'StockPortfolioSimulator.controllers',
+  'firebase',
   'ui.bootstrap'
 ])
 .config(['$routeProvider', function($routeProvider) {
   $routeProvider.
+    when('/login', {
+      templateUrl: 'partials/login.html',
+      controller: 'LoginCtrl'
+    }).
+    
     when('/dashboard', {
       templateUrl: 'partials/dashboard.html',
       controller: 'DashCtrl'
@@ -29,7 +35,7 @@ angular.module('StockPortfolioSimulator', [
       templateUrl: 'partials/404.html'
     }).
     otherwise({
-      redirectTo: '/dashboard'
+      redirectTo: '/login'
     });
   
 }]);

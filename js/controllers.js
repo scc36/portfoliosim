@@ -3,37 +3,94 @@
 /* Controllers */
 
 angular.module('StockPortfolioSimulator.controllers', [])
-
-  /***** DASHBOARD *****/
-  .controller('DashCtrl', ['$scope', 'User',
-    function ($scope, User) {
-      $scope.settings = User.settings;
-      // Gather data from service
-      $scope.portfolioList = User.portfolios;
+  /***** LOGIN *****/
+  .controller('LoginCtrl', ['$scope', '$location', '$firebaseAuth', 'User',
+    function ($scope, $location, $firebaseAuth, User) {
+      $scope.faceLogin = function () {
+        var ref = new Firebase("https://portfoliosim.firebaseio.com/");
+        var auth = $firebaseAuth(ref);
+        auth.$authWithOAuthPopup("facebook").then(function(authData) {
+          User.settings = authData.facebook.cachedUserProfile;
+          $location.path("/dashboard");
+        }).catch(function(error) {
+          console.error("Authentication failed: ", error);
+        });
+      }
     }
   ])
   
-  /***** PROFILE LIST *****/
-  .controller('PortfolioViewCtrl', ['$scope', '$routeParams', 'User',
-    function ($scope, $routeParams, User) {
+  /***** DASHBOARD *****/
+  .controller('DashCtrl', ['$scope', '$location', '$firebase', 'User',
+    function ($scope, $location, $firebase, User) {
+      // Ensure log-in status
+      $scope.settings = User.settings
+      if (!$scope.settings.id) {
+        $location.path("/");
+      }
+      
+      var ref = new Firebase("https://portfoliosim.firebaseio.com/portfolios/");
+      // create an AngularFire reference to the data
+      var sync = $firebase(ref);
+      var syncObject = sync.$asObject();
+      
+      // bind firebase to scope.data
+      syncObject.$bindTo($scope, "portfolioList");
+    }
+  ])
+  
+  /***** PORTFOLIO VIEW *****/
+  .controller('PortfolioViewCtrl', ['$scope', '$location', '$routeParams', '$firebase', 'User',
+    function ($scope, $location, $routeParams, $firebase, User) {
+      // Ensure log-in status
+      $scope.settings = User.settings
+      if (!$scope.settings.id) {
+        $location.path("/");
+      }
+      
       // Gather data from service
       $scope.portfolioName = $routeParams.portfolioId;
+      $scope.portfolio = {};
+      $scope.portfolio.stocks = {};
+      
+      var ref = new Firebase("https://portfoliosim.firebaseio.com/portfolios/" + $scope.portfolioName);
+      // create an AngularFire reference to the data
+      var sync = $firebase(ref);
+      var syncObject = sync.$asObject();
+      
+      // bind firebase to scope.data
+      syncObject.$bindTo($scope, "portfolio");
+
       // Gather data from service
-      $scope.stockList = User.portfolios[$scope.portfolioName].stocks;
+      syncObject.$loaded().then(function(sync) {
+        $scope.stockList = $scope.portfolio.stocks;   
+      });
     }
   ])
   
-  /***** DASHBOARD *****/
-  .controller('PortfolioNewCtrl', ['$scope', '$http', '$location', 'User', 'FinancialRequests',
-    function ($scope, $http, $location, User, FinancialRequests) {
-      // Gather data from service
-      $scope.portfolios = User.portfolios
+  /***** NEW PORTFOLIO *****/
+  .controller('PortfolioNewCtrl', ['$scope', '$http', '$location', '$firebase', 'User', 'FinancialRequests',
+    function ($scope, $http, $location, $firebase, User, FinancialRequests) {
+      // Ensure log-in status
+      $scope.settings = User.settings
+      if (!$scope.settings.id) {
+        $location.path("/");
+      }
       
+      // Gather data from service
+      var ref = new Firebase("https://portfoliosim.firebaseio.com/portfolios/");
+      // create an AngularFire reference to the data
+      var sync = $firebase(ref);
+      var syncObject = sync.$asObject();
+      
+      // bind firebase to scope.data
+      syncObject.$bindTo($scope, "portfolios");
+
       $scope.newPortfolio = {}
       $scope.newPortfolio.id = "";
       $scope.newPortfolio.startDate = new Date();
       $scope.newPortfolio.endDate = new Date();
       $scope.newPortfolio.stocks = {};
+      $scope.newPortfolio.owner = $scope.settings.name;
       $scope.mapped = [];
       
       $scope.getStocks = function(val) {
@@ -92,7 +149,7 @@ angular.module('StockPortfolioSimulator.controllers', [])
       $scope.savePortfolio = function (name) {
         console.log($scope.newPortfolio);
         $scope.portfolios[$scope.newPortfolio.id] = $scope.newPortfolio;
-        $location.path("/");
+        $location.path("/dashboard");
       }
     }
   ])
