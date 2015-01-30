@@ -3,6 +3,26 @@
 /* Controllers */
 
 angular.module('StockPortfolioSimulator.controllers', [])
+  /***** HEADER *****/
+  .controller('HeaderCtrl', ['$scope', '$firebaseAuth', 'User',
+    function ($scope, $location, $firebaseAuth, User) {
+      $scope.header.message = function ();
+      $scope.header.loggedIn = false;
+      
+      $scope.faceLogin = function () {
+        var ref = new Firebase("https://portfoliosim.firebaseio.com/");
+        var auth = $firebaseAuth(ref);
+        auth.$authWithOAuthPopup("facebook").then(function(authData) {
+          User.settings = authData.facebook.cachedUserProfile;
+          $location.path("/dashboard");
+          $scope.header.loggedIn = true;
+        }).catch(function(error) {
+          console.error("Authentication failed: ", error);
+        });
+      }
+    }
+  ])
+  
   /***** LOGIN *****/
   .controller('LoginCtrl', ['$scope', '$location', '$firebaseAuth', 'User',
     function ($scope, $location, $firebaseAuth, User) {
@@ -41,12 +61,6 @@ angular.module('StockPortfolioSimulator.controllers', [])
   /***** PORTFOLIO VIEW *****/
   .controller('PortfolioViewCtrl', ['$scope', '$location', '$routeParams', '$firebase', 'User',
     function ($scope, $location, $routeParams, $firebase, User) {
-      // Ensure log-in status
-      $scope.settings = User.settings
-      if (!$scope.settings.id) {
-        $location.path("/");
-      }
-      
       // Gather data from service
       $scope.portfolioName = $routeParams.portfolioId;
       $scope.portfolio = {};
