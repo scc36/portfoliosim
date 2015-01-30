@@ -1,13 +1,12 @@
 <div id="app" class="container">
   <div class="row">
     <h2 class="page-header">New Portfolio called "{{newPortfolio.id}}"</h2>
-    
     <form name="newPortfolioInfo">
       Name: <input type="text" ng-model="newPortfolio.id" class="form-control" placeholder="Give your portfolio a name here">
       Start Date: <input type="date" id="startDate" name="input" ng-model="newPortfolio.startDate"
         placeholder="yyyy-MM-dd" required />
-      End Date: <input type="date" id="endDate" name="input" ng-model="newPortfolio.endDate"
-        placeholder="yyyy-MM-dd" required />
+      End Date (Optional): <input type="date" id="endDate" name="input" ng-model="newPortfolio.endDate"
+        placeholder="yyyy-MM-dd" />
       <span class="error" ng-show="myForm.input.$error.required">
         Fill in empty fields</span>
       <span class="error" ng-show="myForm.input.$error.date">
@@ -19,6 +18,7 @@
         <thead>
           <tr class="info">
             <th>Stock Symbol</th>
+            <th># Shares</th>
             <th>Current Stock Price</th>
             <th>Remove Stock</th>
           </tr>
@@ -26,6 +26,7 @@
         <tbody>
           <tr ng-repeat="(key, stock) in newPortfolio.stocks">
             <td>{{key}}</td>
+            <td>{{stock.shares}}</td>
             <td>{{stock.price}}</td>
             <td>
               <button ng-click="removeStock(key)" type="button" class="btn btn-xs btn-danger">
@@ -36,8 +37,11 @@
           
           <tr>
             <td>
-              <input type="text" ng-model="newStock" placeholder="Type in stock name" typeahead="stock.value as stock.label for stock in getStocks($viewValue)" typeahead-loading="loadingStocks" class="form-control">
+              <input type="text" ng-model="newStock.name" placeholder="Type in stock name" typeahead="stock.value as stock.label for stock in getStocks($viewValue)" typeahead-loading="loadingStocks" class="form-control">
               <i ng-show="loadingStocks" class="glyphicon glyphicon-refresh"> Getting suggestions</i>
+            </td>
+            <td>
+              <input type="number" ng-model="newStock.shares" placeholder="Amount of shares"class="form-control">
             </td>
             <td>
               <button ng-click="addStock(newStock)" type="button" class="btn btn-success">

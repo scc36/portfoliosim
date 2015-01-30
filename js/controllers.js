@@ -6,7 +6,6 @@ angular.module('StockPortfolioSimulator.controllers', [])
   /***** HEADER *****/
   .controller('HeaderCtrl', ['$scope', '$firebaseAuth', 'User',
     function ($scope, $location, $firebaseAuth, User) {
-      $scope.header.message = function ();
       $scope.header.loggedIn = false;
       
       $scope.faceLogin = function () {
@@ -76,19 +75,27 @@ angular.module('StockPortfolioSimulator.controllers', [])
 
       // Gather data from service
       syncObject.$loaded().then(function(sync) {
-        $scope.stockList = $scope.portfolio.stocks;   
+        ;
       });
+      
+      $scope.clonePortfolio = function() {
+        User.newPortfolio = $scope.portfolio;
+        $location.path("/clone");
+      }
     }
   ])
   
   /***** NEW PORTFOLIO *****/
-  .controller('PortfolioNewCtrl', ['$scope', '$http', '$location', '$firebase', 'User', 'FinancialRequests',
-    function ($scope, $http, $location, $firebase, User, FinancialRequests) {
+  .controller('PortfolioNewCtrl', ['$scope', '$route', '$http', '$location', '$firebase', 'User', 'FinancialRequests',
+    function ($scope, $route, $http, $location, $firebase, User, FinancialRequests) {
       // Ensure log-in status
       $scope.settings = User.settings
       if (!$scope.settings.id) {
         $location.path("/");
       }
+      
+      $scope.createMode = "new"
+      $scope.createMode = $route.current.createMode
       
       // Gather data from service
       var ref = new Firebase("https://portfoliosim.firebaseio.com/portfolios/");
@@ -99,12 +106,20 @@ angular.module('StockPortfolioSimulator.controllers', [])
       // bind firebase to scope.data
       syncObject.$bindTo($scope, "portfolios");
 
-      $scope.newPortfolio = {}
-      $scope.newPortfolio.id = "";
-      $scope.newPortfolio.startDate = new Date();
-      $scope.newPortfolio.endDate = new Date();
-      $scope.newPortfolio.stocks = {};
-      $scope.newPortfolio.owner = $scope.settings.name;
+      if ($scope.createMode == "clone") {
+        $scope.newPortfolio = User.newPortfolio;
+        $scope.newPortfolio.owner = $scope.settings.name;
+      }
+      //createMode == "new"
+      else {
+        $scope.newPortfolio = {}
+        $scope.newPortfolio.id = "";
+        $scope.newPortfolio.startDate = new Date();
+        $scope.newPortfolio.endDate = "";
+        $scope.newPortfolio.stocks = {};
+        $scope.newPortfolio.owner = $scope.settings.name;
+      }
+
       $scope.mapped = [];
       
       $scope.getStocks = function(val) {
@@ -142,15 +157,18 @@ angular.module('StockPortfolioSimulator.controllers', [])
         var stringStartDate = $scope.newPortfolio.startDate.getFullYear() + "-" +
           ($scope.newPortfolio.startDate.getMonth() + 1) + "-" +
           $scope.newPortfolio.startDate.getDate();
-        FinancialRequests.getStockInfo($scope.newStock, stringStartDate)
+        FinancialRequests.getStockInfo($scope.newStock.name, stringStartDate)
           .then(function(data) {
             var price = "N/A";
             if (data.query.results) {
               var stockInfo = data.query.results.quote;
               price = stockInfo.Close;
             }
-            $scope.newPortfolio.stocks [$scope.newStock] = {"price": price};
-            $scope.newStock = "";
+            $scope.newPortfolio.stocks [$scope.newStock.name] = {
+              "price": price,
+              "shares": $scope.newStock.shares,
+            };
+            $scope.newStock = {};
           }, function(error) {
             // Add error message
           });

@@ -28,7 +28,13 @@ angular.module('StockPortfolioSimulator', [
     }).
     when('/new', {
       templateUrl: 'partials/portfolio-new.html',
-      controller: 'PortfolioNewCtrl'
+      controller: 'PortfolioNewCtrl',
+      createMode: 'new'
+    }).
+    when('/clone', {
+      templateUrl: 'partials/portfolio-new.html',
+      controller: 'PortfolioNewCtrl',
+      createMode: 'clone'
     }).
     
     when('/404', {

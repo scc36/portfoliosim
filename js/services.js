@@ -18,7 +18,8 @@ angular.module('StockPortfolioSimulator.services', [])
             "HHH": {"price": 55}
           }
         }
-      }		// Profiles belonging to the user
+      },
+      'newPortfolio': {}  // For saving new Portfolio info
     };
   }])
   .factory('FinancialRequests', ['$http', '$q', function($http, $q) {

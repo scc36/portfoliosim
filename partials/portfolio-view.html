@@ -9,16 +9,23 @@
         <thead>
           <tr class="info">
             <th>Stock Name</th>
-            <th>Current Stock Price</th>
+            <th>Stock Price on {{portfolio.startDate}}</th>
           </tr>
         </thead>
         <tbody>
-          <tr ng-repeat="(key, stock) in stockList">
+          <tr ng-repeat="(key, stock) in portfolio.stocks">
             <td>{{key}}</td>
             <td>{{stock.price}}</td>
           </tr>
         </tbody>
       </table>
     </div>
+    <div>
+      Starting value: {{}}<br>
+      Ending value: {{}}
+    </div>
+    <button ng-click="clonePortfolio()" type="button" class="btn btn-info">
+      <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>Clone Portfolio</td>
+    </button>
   </div>
 </div>
