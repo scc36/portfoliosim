@@ -5,22 +5,17 @@
 angular.module('StockPortfolioSimulator.services', [])
   // Return application version
   .value('version', '0.1')
-  .service('User', [function (_) {
+  .service('User', [function (_, $firebase, $firebaseAuth) {
     return {
       // Holds all the user information
       'settings': {},		// User settings
-      'portfolios': {
-        "One": {
-          "id": "One",
-          "stocks": {
-            "ABC": {"price": 1134},
-            "XYZ": {"price": 9},
-            "HHH": {"price": 55}
-          }
-        }
-      },
-      'newPortfolio': {}  // For saving new Portfolio info
+      'newPortfolio': {},  // For saving new Portfolio info
     };
+  }])
+  .factory("Auth", ["$firebaseAuth", function($firebaseAuth) {
+    // Only for authentication
+    var ref = new Firebase("https://portfoliosim.firebaseio.com/");
+    return $firebaseAuth(ref);
   }])
   .factory('FinancialRequests', ['$http', '$q', function($http, $q) {
     return {

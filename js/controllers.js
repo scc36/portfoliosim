@@ -4,62 +4,55 @@
 
 angular.module('StockPortfolioSimulator.controllers', [])
   /***** HEADER *****/
-  .controller('HeaderCtrl', ['$scope', '$firebaseAuth', 'User',
-    function ($scope, $location, $firebaseAuth, User) {
-      $scope.header.loggedIn = false;
+  .controller('HeaderCtrl', ['$scope', '$location', '$firebaseAuth', 'Auth', 'User',
+    function ($scope, $location, $firebaseAuth, Auth, User) {
+      // Initialize Firebase
+      var ref = new Firebase("https://portfoliosim.firebaseio.com/");
+      $scope.auth = $firebaseAuth(ref);
       
-      $scope.faceLogin = function () {
-        var ref = new Firebase("https://portfoliosim.firebaseio.com/");
-        var auth = $firebaseAuth(ref);
-        auth.$authWithOAuthPopup("facebook").then(function(authData) {
+      // Extra Authentication Logic
+      Auth.$onAuth(function(authData) {
+        $scope.authData = authData;
+        if (authData) {
           User.settings = authData.facebook.cachedUserProfile;
-          $location.path("/dashboard");
-          $scope.header.loggedIn = true;
-        }).catch(function(error) {
-          console.error("Authentication failed: ", error);
-        });
-      }
+          console.log("Signed in as " + User.settings.name);
+          if ($location.path().substring(0,10) != "/portfolio") {
+            $location.path("/dashboard");
+          }
+          else {
+            $location.path("/portfolio");
+          }
+        }
+        else {
+          console.log("Signed out");
+        }
+      });
     }
   ])
   
   /***** LOGIN *****/
-  .controller('LoginCtrl', ['$scope', '$location', '$firebaseAuth', 'User',
-    function ($scope, $location, $firebaseAuth, User) {
-      $scope.faceLogin = function () {
-        var ref = new Firebase("https://portfoliosim.firebaseio.com/");
-        var auth = $firebaseAuth(ref);
-        auth.$authWithOAuthPopup("facebook").then(function(authData) {
-          User.settings = authData.facebook.cachedUserProfile;
-          $location.path("/dashboard");
-        }).catch(function(error) {
-          console.error("Authentication failed: ", error);
-        });
-      }
-    }
-  ])
-  
-  /***** DASHBOARD *****/
-  .controller('DashCtrl', ['$scope', '$location', '$firebase', 'User',
-    function ($scope, $location, $firebase, User) {
-      // Ensure log-in status
-      $scope.settings = User.settings
-      if (!$scope.settings.id) {
-        $location.path("/");
-      }
-      
-      var ref = new Firebase("https://portfoliosim.firebaseio.com/portfolios/");
-      // create an AngularFire reference to the data
-      var sync = $firebase(ref);
-      var syncObject = sync.$asObject();
-      
-      // bind firebase to scope.data
-      syncObject.$bindTo($scope, "portfolioList");
+  .controller('LoginCtrl', ['$scope', '$location', '$firebaseAuth', 'Auth', 'User',
+    function ($scope, $location, $firebaseAuth, Auth, User) {
+
     }
   ])
   
   /***** PORTFOLIO VIEW *****/
-  .controller('PortfolioViewCtrl', ['$scope', '$location', '$routeParams', '$firebase', 'User',
-    function ($scope, $location, $routeParams, $firebase, User) {
+  .controller('PortfolioViewCtrl', ['$scope', '$location', '$routeParams', '$firebase', '$firebaseAuth', 'Auth', 'User',
+    function ($scope, $location, $routeParams, $firebase, $firebaseAuth, Auth, User) {
+      // Initialize Firebase
+      var ref = new Firebase("https://portfoliosim.firebaseio.com/");
+      var auth = $firebaseAuth(ref);
+      
+      // Extra Authentication Logic
+      Auth.$onAuth(function(authData) {
+        $scope.authData = authData;
+        if (authData) {
+          User.settings = authData.facebook.cachedUserProfile;
+          console.log("Signed in as " + User.settings.name);
+        }
+      });
+      
       // Gather data from service
       $scope.portfolioName = $routeParams.portfolioId;
       $scope.portfolio = {};
@@ -85,15 +78,53 @@ angular.module('StockPortfolioSimulator.controllers', [])
     }
   ])
   
-  /***** NEW PORTFOLIO *****/
-  .controller('PortfolioNewCtrl', ['$scope', '$route', '$http', '$location', '$firebase', 'User', 'FinancialRequests',
-    function ($scope, $route, $http, $location, $firebase, User, FinancialRequests) {
-      // Ensure log-in status
-      $scope.settings = User.settings
-      if (!$scope.settings.id) {
-        $location.path("/");
-      }
+  /************* END PUBLIC PAGES *************/
+  
+  /***** DASHBOARD *****/
+  .controller('DashCtrl', ['$scope', '$location', '$firebase', '$firebaseAuth', 'currentAuth', 'Auth', 'User',
+    function ($scope, $location, $firebase, $firebaseAuth, currentAuth, Auth, User) {
+      // Initialize Firebase
+      var ref = new Firebase("https://portfoliosim.firebaseio.com/");
+      $scope.auth = $firebaseAuth(ref);
       
+      // Extra Authentication Logic
+      Auth.$onAuth(function(authData) {
+        $scope.authData = authData;
+        if (!authData) {
+          User.settings = {};
+          console.log("Signed out");
+          $location.path("/");
+        }
+      });
+      
+      var ref = new Firebase("https://portfoliosim.firebaseio.com/portfolios/");
+      // create an AngularFire reference to the data
+      var sync = $firebase(ref);
+      var syncObject = sync.$asObject();
+      
+      // bind firebase to scope.data
+      syncObject.$bindTo($scope, "portfolioList");
+    }
+  ])
+  
+  /***** NEW PORTFOLIO *****/
+  .controller('PortfolioNewCtrl', ['$scope', '$route', '$http', '$location', '$firebase', '$firebaseAuth', 'Auth', 'User', 'FinancialRequests',
+    function ($scope, $route, $http, $location, $firebase, $firebaseAuth, Auth, User, FinancialRequests) {
+      // Initialize Firebase
+      var ref = new Firebase("https://portfoliosim.firebaseio.com/");
+      $scope.auth = $firebaseAuth(ref);
+      
+      // Extra Authentication Logic
+      Auth.$onAuth(function(authData) {
+        $scope.authData = authData;
+        if (!authData) {
+          User.settings = {};
+          console.log("Signed out");
+          $location.path("/");
+        }
+      });
+      
+      $scope.settings = User.settings;
       $scope.createMode = "new"
       $scope.createMode = $route.current.createMode
       

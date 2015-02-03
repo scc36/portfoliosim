@@ -1,8 +1,11 @@
+<div ng-include src="'partials/partial-header.html'"></div>
+
 <div id="app" class="container">
-  <div class="row">
-    <h2 class="page-header">Welcome to the Stock Portfolio Simulator</h2>
-    <button ng-click="faceLogin()" type="button" class="btn btn-default">
+  <div class="jumbotron">
+    <h1>Stock Portfolio Simulator</h1>
+    <p>Create a portfolio of stocks and see how well you would do if you had bought them on the real stock market.</p>
+    <p><button ng-hide="authData" ng-click="auth.$authWithOAuthPopup('facebook')" type="button" class="btn btn-primary">
       Click the button to log in through Facebook
-    </button>
+    </button></p>
   </div>
 </div>
