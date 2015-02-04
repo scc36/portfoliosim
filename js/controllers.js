@@ -20,11 +20,17 @@ angular.module('StockPortfolioSimulator.controllers', [])
             $location.path("/dashboard");
           }
           else {
-            $location.path("/portfolio");
+            $location.path($location.path());
           }
         }
         else {
           console.log("Signed out");
+          if ($location.path().substring(0,10) != "/portfolio") {
+            $location.path("/");
+          }
+          else {
+            $location.path($location.path());
+          }
         }
       });
     }
@@ -40,24 +46,12 @@ angular.module('StockPortfolioSimulator.controllers', [])
   /***** PORTFOLIO VIEW *****/
   .controller('PortfolioViewCtrl', ['$scope', '$location', '$routeParams', '$firebase', '$firebaseAuth', 'Auth', 'User',
     function ($scope, $location, $routeParams, $firebase, $firebaseAuth, Auth, User) {
-      // Initialize Firebase
-      var ref = new Firebase("https://portfoliosim.firebaseio.com/");
-      var auth = $firebaseAuth(ref);
-      
-      // Extra Authentication Logic
-      Auth.$onAuth(function(authData) {
-        $scope.authData = authData;
-        if (authData) {
-          User.settings = authData.facebook.cachedUserProfile;
-          console.log("Signed in as " + User.settings.name);
-        }
-      });
-      
       // Gather data from service
       $scope.portfolioName = $routeParams.portfolioId;
       $scope.portfolio = {};
       $scope.portfolio.stocks = {};
       
+      // Initialize Firebase
       var ref = new Firebase("https://portfoliosim.firebaseio.com/portfolios/" + $scope.portfolioName);
       // create an AngularFire reference to the data
       var sync = $firebase(ref);
@@ -84,19 +78,6 @@ angular.module('StockPortfolioSimulator.controllers', [])
   .controller('DashCtrl', ['$scope', '$location', '$firebase', '$firebaseAuth', 'currentAuth', 'Auth', 'User',
     function ($scope, $location, $firebase, $firebaseAuth, currentAuth, Auth, User) {
       // Initialize Firebase
-      var ref = new Firebase("https://portfoliosim.firebaseio.com/");
-      $scope.auth = $firebaseAuth(ref);
-      
-      // Extra Authentication Logic
-      Auth.$onAuth(function(authData) {
-        $scope.authData = authData;
-        if (!authData) {
-          User.settings = {};
-          console.log("Signed out");
-          $location.path("/");
-        }
-      });
-      
       var ref = new Firebase("https://portfoliosim.firebaseio.com/portfolios/");
       // create an AngularFire reference to the data
       var sync = $firebase(ref);
@@ -110,25 +91,11 @@ angular.module('StockPortfolioSimulator.controllers', [])
   /***** NEW PORTFOLIO *****/
   .controller('PortfolioNewCtrl', ['$scope', '$route', '$http', '$location', '$firebase', '$firebaseAuth', 'Auth', 'User', 'FinancialRequests',
     function ($scope, $route, $http, $location, $firebase, $firebaseAuth, Auth, User, FinancialRequests) {
-      // Initialize Firebase
-      var ref = new Firebase("https://portfoliosim.firebaseio.com/");
-      $scope.auth = $firebaseAuth(ref);
-      
-      // Extra Authentication Logic
-      Auth.$onAuth(function(authData) {
-        $scope.authData = authData;
-        if (!authData) {
-          User.settings = {};
-          console.log("Signed out");
-          $location.path("/");
-        }
-      });
-      
       $scope.settings = User.settings;
       $scope.createMode = "new"
       $scope.createMode = $route.current.createMode
       
-      // Gather data from service
+      // Initialize Firebase
       var ref = new Firebase("https://portfoliosim.firebaseio.com/portfolios/");
       // create an AngularFire reference to the data
       var sync = $firebase(ref);
