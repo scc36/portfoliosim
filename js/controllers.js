@@ -75,8 +75,8 @@ angular.module('StockPortfolioSimulator.controllers', [])
   /************* END PUBLIC PAGES *************/
   
   /***** DASHBOARD *****/
-  .controller('DashCtrl', ['$scope', '$location', '$firebase', 'currentAuth', 'User',
-    function ($scope, $location, $firebase, currentAuth, User) {
+  .controller('DashCtrl', ['$scope', '$location', '$firebase', '_', 'currentAuth', 'User',
+    function ($scope, $location, $firebase, _, currentAuth, User) {
       $scope.settings = User.settings;
       $scope.count = 0;
       
@@ -91,7 +91,13 @@ angular.module('StockPortfolioSimulator.controllers', [])
       
       // on data load
       syncObject.$loaded().then(function() {
-        ;
+        $scope.portfolioList;
+        _.each($scope.portfolioList, function(portfolio) {
+          // Only look over actual portfolio objects
+          if (portfolio && typeof portfolio === 'object') {
+            console.log(portfolio);
+          }
+        });
       });
     }
   ])
@@ -190,9 +196,9 @@ angular.module('StockPortfolioSimulator.controllers', [])
       };
       
       $scope.savePortfolio = function (name) {
-        $scope.newPortfolio.totalValue = 0;
+        $scope.newPortfolio.startValue = 0;
         $scope.newPortfolio.stocks.forEach(function(stock) {
-          $scope.newPortfolio.totalValue += stock.value;
+          $scope.newPortfolio.startValue += stock.value;
         });
         console.log($scope.newPortfolio);
         $scope.newPortfolio.startTime = $scope.newPortfolio.startDate.getTime();

@@ -5,7 +5,7 @@
 angular.module('StockPortfolioSimulator.services', [])
   // Return application version
   .value('version', '0.1')
-  .service('User', [function (_, $firebase, $firebaseAuth) {
+  .service('User', [function () {
     return {
       // Holds all the user information
       'settings': {},		// User settings
@@ -48,9 +48,8 @@ angular.module('StockPortfolioSimulator.services', [])
       },
     };
   }])
-  
   // Allowing underscore.js operations
-  .factory("_", ["", function() {
+  .factory("_", [function() {
 		return window._; // assumes underscore has already been loaded on the page
 	}])
 ;
