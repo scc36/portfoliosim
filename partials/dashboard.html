@@ -1,21 +1,29 @@
 <div id="app" class="container">
-  <div class="row">
-    <h2 class="page-header">Welcome to Portfolio Simulator, {{settings.name}}</h2>
-    <div id="stock-table" class="table-responsive">
-      <table class="table table-striped table-hover table-condensed">
-        <thead>
-          <tr class="info">
-            <th>Portfolio Name</th>
-            <th>Number of Stocks</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr ng-repeat="(key, portfolio) in portfolioList">
-            <td><a href=#/portfolio/{{portfolio.id}}>{{key}}</a></td>
-            <td>{{portfolio.stocks}}</td>
-          </tr>
-        </tbody>
-      </table>
+  <div id="portfolio-summary" class="row">
+    <div class="col-md-4">
+      <h3>Your Best Portfolio</h3>
+      <p>d</p>
     </div>
+    <div class="col-md-4">
+      <h3>Your Worst Portfolio</h3>
+      <p>d</p>
+    </div>
+  </div>
+  <h3>Your Portfolios</h3>
+  <div id="portfolio-table" class="table-responsive">
+    <table class="table table-striped table-hover table-condensed">
+      <thead>
+        <tr class="info">
+          <th>Portfolio Name</th>
+          <th>Number of Stocks</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr ng-repeat="(key, portfolio) in portfolioList">
+          <td><a href=#/portfolio/{{key}}>{{portfolio.name}}</a></td>
+          <td>{{portfolio.stocks.length}}</td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 </div>

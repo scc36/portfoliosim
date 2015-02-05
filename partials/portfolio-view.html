@@ -1,7 +1,7 @@
 <div id="app" class="container">
   <div class="row">
     <h2 class="page-header">Portfolio Display</h2>
-    <h3>For Portfolio: {{portfolioName}}</h3>
+    <h3>For Portfolio: {{portfolio.name}}</h3>
     <h4>Owned By: {{portfolio.owner}}</h4>
     <!-- Show alternate text if there are no entries -->
     <div id="stock-table" class="table-responsive">
@@ -10,12 +10,16 @@
           <tr class="info">
             <th>Stock Name</th>
             <th>Stock Price on {{portfolio.startDate}}</th>
+            <th># of Shares</th>
+            <th>Total Value</th>
           </tr>
         </thead>
         <tbody>
-          <tr ng-repeat="(key, stock) in portfolio.stocks">
-            <td>{{key}}</td>
+          <tr ng-repeat="stock in portfolio.stocks">
+            <td>{{stock.symbol}}</td>
             <td>{{stock.price}}</td>
+            <td>{{stock.shares}}</td>
+            <td>{{stock.value}}</td>
           </tr>
         </tbody>
       </table>

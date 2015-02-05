@@ -37,15 +37,15 @@ angular.module('StockPortfolioSimulator.controllers', [])
   ])
   
   /***** LOGIN *****/
-  .controller('LoginCtrl', ['$scope', '$location', '$firebaseAuth', 'Auth', 'User',
-    function ($scope, $location, $firebaseAuth, Auth, User) {
-
+  .controller('LoginCtrl', ['$scope', '$location', '$firebase', 'User',
+    function ($scope, $location, $firebase, User) {
+      
     }
   ])
   
   /***** PORTFOLIO VIEW *****/
-  .controller('PortfolioViewCtrl', ['$scope', '$location', '$routeParams', '$firebase', '$firebaseAuth', 'Auth', 'User',
-    function ($scope, $location, $routeParams, $firebase, $firebaseAuth, Auth, User) {
+  .controller('PortfolioViewCtrl', ['$scope', '$location', '$routeParams', '$firebase', 'User',
+    function ($scope, $location, $routeParams, $firebase, User) {
       // Gather data from service
       $scope.portfolioName = $routeParams.portfolioId;
       $scope.portfolio = {};
@@ -75,22 +75,30 @@ angular.module('StockPortfolioSimulator.controllers', [])
   /************* END PUBLIC PAGES *************/
   
   /***** DASHBOARD *****/
-  .controller('DashCtrl', ['$scope', '$location', '$firebase', '$firebaseAuth', 'currentAuth', 'Auth', 'User',
-    function ($scope, $location, $firebase, $firebaseAuth, currentAuth, Auth, User) {
+  .controller('DashCtrl', ['$scope', '$location', '$firebase', 'currentAuth', 'User',
+    function ($scope, $location, $firebase, currentAuth, User) {
+      $scope.settings = User.settings;
+      $scope.count = 0;
+      
       // Initialize Firebase
       var ref = new Firebase("https://portfoliosim.firebaseio.com/portfolios/");
       // create an AngularFire reference to the data
-      var sync = $firebase(ref);
+      var sync = $firebase(ref.orderByChild("owner").equalTo(User.settings.name));
       var syncObject = sync.$asObject();
       
       // bind firebase to scope.data
       syncObject.$bindTo($scope, "portfolioList");
+      
+      // on data load
+      syncObject.$loaded().then(function() {
+        ;
+      });
     }
   ])
   
   /***** NEW PORTFOLIO *****/
-  .controller('PortfolioNewCtrl', ['$scope', '$route', '$http', '$location', '$firebase', '$firebaseAuth', 'Auth', 'User', 'FinancialRequests',
-    function ($scope, $route, $http, $location, $firebase, $firebaseAuth, Auth, User, FinancialRequests) {
+  .controller('PortfolioNewCtrl', ['$scope', '$route', '$http', '$location', '$firebase', 'User', 'FinancialRequests',
+    function ($scope, $route, $http, $location, $firebase, User, FinancialRequests) {
       $scope.settings = User.settings;
       $scope.createMode = "new"
       $scope.createMode = $route.current.createMode
@@ -111,10 +119,10 @@ angular.module('StockPortfolioSimulator.controllers', [])
       //createMode == "new"
       else {
         $scope.newPortfolio = {}
-        $scope.newPortfolio.id = "";
+        $scope.newPortfolio.name = "";
         $scope.newPortfolio.startDate = new Date();
         $scope.newPortfolio.endDate = "";
-        $scope.newPortfolio.stocks = {};
+        $scope.newPortfolio.stocks = [];
         $scope.newPortfolio.owner = $scope.settings.name;
       }
 
@@ -158,29 +166,42 @@ angular.module('StockPortfolioSimulator.controllers', [])
         FinancialRequests.getStockInfo($scope.newStock.name, stringStartDate)
           .then(function(data) {
             var price = "N/A";
+            price = 1;
             if (data.query.results) {
               var stockInfo = data.query.results.quote;
               price = stockInfo.Close;
             }
-            $scope.newPortfolio.stocks [$scope.newStock.name] = {
-              "price": price,
+            $scope.newPortfolio.stocks.push ({
+              "symbol": $scope.newStock.name,
               "shares": $scope.newStock.shares,
-            };
+              // Potentially remove below, can calculate/retrieve on fly
+              "price": price,
+              "value": Number($scope.newStock.shares) * Number(price),
+            });
             $scope.newStock = {};
           }, function(error) {
             // Add error message
           });
-      }
+      };
       
-      $scope.removeStock = function (name) {
-        delete $scope.newPortfolio.stocks [name];
-      }
+      $scope.removeStock = function (index) {
+        //delete $scope.newPortfolio.stocks [name];
+        $scope.newPortfolio.stocks.splice(index, 1);
+      };
       
       $scope.savePortfolio = function (name) {
+        $scope.newPortfolio.totalValue = 0;
+        $scope.newPortfolio.stocks.forEach(function(stock) {
+          $scope.newPortfolio.totalValue += stock.value;
+        });
         console.log($scope.newPortfolio);
-        $scope.portfolios[$scope.newPortfolio.id] = $scope.newPortfolio;
+        $scope.newPortfolio.startTime = $scope.newPortfolio.startDate.getTime();
+        if ($scope.newPortfolio.endDate) {
+          $scope.newPortfolio.endTime = $scope.newPortfolio.endDate.getTime();
+        }
+        $scope.portfolios[ref.push().key()] = $scope.newPortfolio;
         $location.path("/dashboard");
-      }
+      };
     }
   ])
   

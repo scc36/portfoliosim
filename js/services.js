@@ -30,6 +30,7 @@ angular.module('StockPortfolioSimulator.services', [])
       },
       
       // Common elements
+      //http://finance.google.com/finance/info?client=ig&q=GOOG
       
       // Common response processing
       response: function(response) {
@@ -47,4 +48,9 @@ angular.module('StockPortfolioSimulator.services', [])
       },
     };
   }])
+  
+  // Allowing underscore.js operations
+  .factory("_", ["", function() {
+		return window._; // assumes underscore has already been loaded on the page
+	}])
 ;

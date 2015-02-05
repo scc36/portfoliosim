@@ -14,7 +14,7 @@
 </head>
   <body>
     <div ng-controller="HeaderCtrl">
-      <nav class="navbar navbar-inverse">
+      <nav class="navbar navbar-default">
         <div class="container-fluid">
           <!-- Brand and toggle get grouped for better mobile display -->
           <div class="navbar-header">
@@ -32,8 +32,9 @@
             <ul class="nav navbar-nav">
               <li ng-show="authData"><a href="#/new">New Portfolio</a></li>
             </ul>
-            <button ng-hide="authData" ng-click="auth.$authWithOAuthPopup('facebook')" class="btn btn-primary navbar-btn">Login through Facebook</button>
-            <button ng-show="authData" ng-click="auth.$unauth()" class="btn btn-warning navbar-btn">Sign Out</button>
+            <button ng-hide="authData" ng-click="auth.$authWithOAuthPopup('facebook')" class="btn btn-default navbar-btn navbar-right">Login through Facebook</button>
+            <button ng-show="authData" ng-click="auth.$unauth()" class="btn btn-default navbar-btn navbar-right">Sign Out</button>
+            <p ng-show="authData" class="navbar-text navbar-right">Welcome, {{authData.facebook.cachedUserProfile.name}}</p>
           </div><!-- /.navbar-collapse -->
         </div><!-- /.container-fluid -->
       </nav>

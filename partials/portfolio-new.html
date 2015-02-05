@@ -1,18 +1,28 @@
 <div id="app" class="container">
   <div class="row">
-    <h2 class="page-header">New Portfolio called "{{newPortfolio.id}}"</h2>
+    <h3 class="page-header">New Portfolio called: <b>{{newPortfolio.name}}</b></h3>
     <form name="newPortfolioInfo">
-      Name: <input type="text" ng-model="newPortfolio.id" class="form-control" placeholder="Give your portfolio a name here">
-      Start Date: <input type="date" id="startDate" name="input" ng-model="newPortfolio.startDate"
-        placeholder="yyyy-MM-dd" required />
-      End Date (Optional): <input type="date" id="endDate" name="input" ng-model="newPortfolio.endDate"
-        placeholder="yyyy-MM-dd" />
-      <span class="error" ng-show="myForm.input.$error.required">
+      <div class="form-group col-md-6">
+        <label for="portfolioName">Name</label>
+        <input type="text" ng-model="newPortfolio.name" class="form-control" placeholder="Give your portfolio a name" required>
+      </div>
+      <div class="form-group col-md-3">
+        <label for="portfolioStart">Start Date</label>
+        <input type="date" id="startDate" name="input" ng-model="newPortfolio.startDate" class="form-control" placeholder="yyyy-MM-dd" required />
+      </div>
+      <div class="form-group col-md-3">
+        <label for="portfolioEnd">End Date</label>
+        <input type="date" id="endDate" name="input" ng-model="newPortfolio.endDate" class="form-control" placeholder="yyyy-MM-dd" />
+      </div>
+      
+      <span class="error" ng-show="newPortfolioInfo.input.$error.required">
         Fill in empty fields</span>
-      <span class="error" ng-show="myForm.input.$error.date">
+      <span class="error" ng-show="newPortfolioInfo.input.$error.date">
         Not a valid date!</span>
     </form>
-    
+  </div>
+  
+  <div class="row">
     <div id="orders-table" class="table-responsive">
       <table class="table table-striped table-hover table-condensed">
         <thead>
@@ -20,16 +30,18 @@
             <th>Stock Symbol</th>
             <th># Shares</th>
             <th>Current Stock Price</th>
+            <th>Value</th>
             <th>Remove Stock</th>
           </tr>
         </thead>
         <tbody>
-          <tr ng-repeat="(key, stock) in newPortfolio.stocks">
-            <td>{{key}}</td>
+          <tr ng-repeat="stock in newPortfolio.stocks">
+            <td>{{stock.symbol}}</td>
             <td>{{stock.shares}}</td>
             <td>{{stock.price}}</td>
+            <td>{{stock.value}}</td>
             <td>
-              <button ng-click="removeStock(key)" type="button" class="btn btn-xs btn-danger">
+              <button ng-click="removeStock($index)" type="button" class="btn btn-xs btn-danger">
                 <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>Remove</td>
               </button>
             </td>
