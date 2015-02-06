@@ -155,7 +155,7 @@ angular.module('StockPortfolioSimulator.controllers', [])
       //createMode == "new"
       else {
         $scope.newPortfolio = {}
-        $scope.newPortfolio.name = "";
+        $scope.newPortfolio.name = "My Portfolio";
         $scope.newPortfolio.startDate = new Date();
         $scope.newPortfolio.endDate = "";
         $scope.newPortfolio.stocks = [];

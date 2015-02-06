@@ -1,10 +1,10 @@
 <div id="app" class="container">
   <div class="row">
     <h3 class="page-header">New Portfolio called: <b>{{newPortfolio.name}}</b></h3>
-    <form name="newPortfolioInfo">
+    <form name="newPortfolioInfo" role="form" novalidate="">
       <div class="form-group col-md-6">
         <label for="portfolioName">Name</label>
-        <input type="text" ng-model="newPortfolio.name" class="form-control" placeholder="Give your portfolio a name" required>
+        <input type="text" ng-model="newPortfolio.name" class="form-control" placeholder="Give your portfolio a name" required />
       </div>
       <div class="form-group col-md-3">
         <label for="portfolioStart">Start Date</label>
@@ -15,15 +15,18 @@
         <input type="date" id="endDate" name="endDate" ng-model="newPortfolio.endDate" class="form-control" placeholder="yyyy-MM-dd" />
       </div>
       
-      <span class="error" ng-show="newPortfolioInfo.$error.required">
-        Fill in empty fields</span>
-      <span class="error" ng-show="newPortfolioInfo.$error.date">
-        Not a valid date!</span>
+      <div ng-show="newPortfolioInfo.$error.required" class="alert alert-danger" role="alert">
+        Required fields need to be filled in
+      </div>
+      <div ng-show="newPortfolioInfo.$error.date" class="alert alert-danger" role="alert">
+        Not a valid date
+      </div>
     </form>
   </div>
   
   <div class="row">
     <div id="orders-table" class="table-responsive">
+      <form name="newStockInfo" role="form" novalidate="">
       <table class="table table-striped table-hover table-condensed">
         <thead>
           <tr class="info">
@@ -49,21 +52,33 @@
           
           <tr>
             <td>
-              <input type="text" ng-model="newStock.name" placeholder="Type in stock name" typeahead="stock.value as stock.label for stock in getStocks($viewValue)" typeahead-loading="loadingStocks" class="form-control">
+              <input type="text" ng-model="newStock.name" placeholder="Type in stock name" typeahead="stock.value as stock.label for stock in getStocks($viewValue)" typeahead-loading="loadingStocks" class="form-control" required />
               <i ng-show="loadingStocks" class="glyphicon glyphicon-refresh"> Getting suggestions</i>
             </td>
             <td>
-              <input type="number" ng-model="newStock.shares" placeholder="Amount of shares"class="form-control">
+              <input type="number" ng-model="newStock.shares" min="1" placeholder="Amount of shares"class="form-control" required />
             </td>
             <td>
-              <button ng-click="addStock(newStock)" type="button" class="btn btn-success">
+              <button ng-click="addStock(newStock)" ng-disabled="!newStockInfo.$valid" type="button" class="btn btn-success">
                 <span class="glyphicon glyphicon-add" aria-hidden="true"></span>Add Stock</td>
               </button>
             </td>
           </tr>
+          <tr ng-show="newStockInfo.$error.required">
+            <td class="alert alert-warning" role="alert">
+              Required fields need to be filled in
+            </td>
+          </tr>
+          <tr ng-show="newStockInfo.$error.number || newStockInfo.$error.min">
+            <td class="alert alert-warning" role="alert">
+              Not a valid number for shares
+            </td>
+          </tr>
         </tbody>
       </table>
+      </form>
     </div>
+    
     <button ng-click="savePortfolio()" type="button" class="btn btn-info">
       <span class="glyphicon glyphicon-save" aria-hidden="true"></span>Save New Portfolio</td>
     </button>
