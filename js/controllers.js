@@ -44,8 +44,8 @@ angular.module('StockPortfolioSimulator.controllers', [])
   ])
   
   /***** PORTFOLIO VIEW *****/
-  .controller('PortfolioViewCtrl', ['$scope', '$location', '$routeParams', '$firebase', 'User',
-    function ($scope, $location, $routeParams, $firebase, User) {
+  .controller('PortfolioViewCtrl', ['$scope', '$location', '$routeParams', '$firebase', '_', 'User',
+    function ($scope, $location, $routeParams, $firebase, _, User) {
       // Gather data from service
       $scope.portfolioName = $routeParams.portfolioId;
       $scope.portfolio = {};
@@ -75,10 +75,12 @@ angular.module('StockPortfolioSimulator.controllers', [])
   /************* END PUBLIC PAGES *************/
   
   /***** DASHBOARD *****/
-  .controller('DashCtrl', ['$scope', '$location', '$firebase', '_', 'currentAuth', 'User',
-    function ($scope, $location, $firebase, _, currentAuth, User) {
+  .controller('DashCtrl', ['$scope', '$location', '$q', '$firebase', '_', 'currentAuth', 'User', 'FinancialRequests',
+    function ($scope, $location, $q, $firebase, _, currentAuth, User, FinancialRequests) {
       $scope.settings = User.settings;
       $scope.count = 0;
+      $scope.bestPortfolio = "";
+      $scope.worstPortfolio = "";
       
       // Initialize Firebase
       var ref = new Firebase("https://portfoliosim.firebaseio.com/portfolios/");
@@ -95,10 +97,38 @@ angular.module('StockPortfolioSimulator.controllers', [])
         _.each($scope.portfolioList, function(portfolio) {
           // Only look over actual portfolio objects
           if (portfolio && typeof portfolio === 'object') {
-            console.log(portfolio);
+            // Get current prices if endDate is empty:
+            if (!portfolio.endDate) {
+              portfolio.endValue = 0;
+              var querySymbols = "";
+              portfolio.stocks.forEach(function(stock) {
+                querySymbols += stock.symbol + ",";
+              });
+              querySymbols = querySymbols.slice(0, -1);
+              
+              FinancialRequests.getStockInfo(querySymbols).then(function(stocks) {
+                //console.log(data);
+                stocks.forEach(function(stock, index) {
+                  portfolio.endValue += stock.l * portfolio.stocks[index].shares;
+                });
+              }, function(error) {
+                // Add error message
+              });
+            }
           }
         });
+        
+        // Find the portfolios with the Highest and Lowest value differences
+        RankPortfolios();
       });
+      
+      function RankPortfolios() {
+        var bestDiff;
+        var worstDiff;
+        _.each($scope.portfolioList, function(portfolio) {
+          
+        });
+      }
     }
   ])
   
@@ -169,7 +199,7 @@ angular.module('StockPortfolioSimulator.controllers', [])
         var stringStartDate = $scope.newPortfolio.startDate.getFullYear() + "-" +
           ($scope.newPortfolio.startDate.getMonth() + 1) + "-" +
           $scope.newPortfolio.startDate.getDate();
-        FinancialRequests.getStockInfo($scope.newStock.name, stringStartDate)
+        FinancialRequests.getHistoricStockInfo($scope.newStock.name, stringStartDate)
           .then(function(data) {
             var price = "N/A";
             price = 1;

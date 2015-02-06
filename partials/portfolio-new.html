@@ -8,16 +8,16 @@
       </div>
       <div class="form-group col-md-3">
         <label for="portfolioStart">Start Date</label>
-        <input type="date" id="startDate" name="input" ng-model="newPortfolio.startDate" class="form-control" placeholder="yyyy-MM-dd" required />
+        <input type="date" id="startDate" name="startDate" ng-model="newPortfolio.startDate" class="form-control" placeholder="yyyy-MM-dd" required />
       </div>
       <div class="form-group col-md-3">
         <label for="portfolioEnd">End Date</label>
-        <input type="date" id="endDate" name="input" ng-model="newPortfolio.endDate" class="form-control" placeholder="yyyy-MM-dd" />
+        <input type="date" id="endDate" name="endDate" ng-model="newPortfolio.endDate" class="form-control" placeholder="yyyy-MM-dd" />
       </div>
       
-      <span class="error" ng-show="newPortfolioInfo.input.$error.required">
+      <span class="error" ng-show="newPortfolioInfo.$error.required">
         Fill in empty fields</span>
-      <span class="error" ng-show="newPortfolioInfo.input.$error.date">
+      <span class="error" ng-show="newPortfolioInfo.$error.date">
         Not a valid date!</span>
     </form>
   </div>
@@ -38,7 +38,7 @@
           <tr ng-repeat="stock in newPortfolio.stocks">
             <td>{{stock.symbol}}</td>
             <td>{{stock.shares}}</td>
-            <td>{{stock.price}}</td>
+            <td><input type="number" ng-model="stock.price"></td>
             <td>{{stock.value}}</td>
             <td>
               <button ng-click="removeStock($index)" type="button" class="btn btn-xs btn-danger">

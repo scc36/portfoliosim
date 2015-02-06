@@ -27,8 +27,8 @@
           <tr ng-repeat="(key, portfolio) in portfolioList">
             <td><a href=#/portfolio/{{key}}>{{portfolio.name}}</a></td>
             <td>{{portfolio.stocks.length}}</td>
-            <td>{{portfolio.stocks.startValue}}</td>
-            <td>{{portfolio.stocks.endValue}}</td>
+            <td>${{portfolio.startValue}}</td>
+            <td>${{portfolio.endValue}}</td>
           </tr>
         </tbody>
       </table>

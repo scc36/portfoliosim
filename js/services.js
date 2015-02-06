@@ -19,18 +19,26 @@ angular.module('StockPortfolioSimulator.services', [])
   }])
   .factory('FinancialRequests', ['$http', '$q', function($http, $q) {
     return {
-      getStockInfo: function(symbol, date) {
+      getHistoricStockInfo: function(symbol, date) {
         var url = "https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20yahoo.finance.historicaldata%20where%20symbol%20in%20(%22"
           + symbol + "%22)%20and%20startDate%20%3D%20%22" + date +
           "%22%20and%20endDate%20%3D%20%22" + date +
           "%22&format=json&diagnostics=true&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys";
-        console.log(url);
+        //console.log(url);
         return $http.get(url)
+          .then(this.response, this.error);
+      },
+      getStockInfo: function(symbol) {
+        // can have multiple symbols, comma separated
+        //http://finance.google.com/finance/info?client=ig&q=GOOG
+        var url = "https://finance.google.com/finance/info?client=ig&q="
+          + symbol + "&callback=JSON_CALLBACK";
+        //console.log(url);
+        return $http.jsonp(url)
           .then(this.response, this.error);
       },
       
       // Common elements
-      //http://finance.google.com/finance/info?client=ig&q=GOOG
       
       // Common response processing
       response: function(response) {
