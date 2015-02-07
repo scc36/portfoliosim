@@ -139,6 +139,9 @@ angular.module('StockPortfolioSimulator.controllers', [])
       $scope.createMode = "new"
       $scope.createMode = $route.current.createMode
       
+      $scope.newPortfolio = {};
+      $scope.newStock = {};
+      
       // Initialize Firebase
       var ref = new Firebase("https://portfoliosim.firebaseio.com/portfolios/");
       // create an AngularFire reference to the data
@@ -158,11 +161,17 @@ angular.module('StockPortfolioSimulator.controllers', [])
         $scope.newPortfolio.name = "My Portfolio";
         $scope.newPortfolio.startDate = new Date();
         $scope.newPortfolio.endDate = "";
+        $scope.newPortfolio.startValue = 0;
+        $scope.newPortfolio.endValue = 0;
         $scope.newPortfolio.stocks = [];
         $scope.newPortfolio.owner = $scope.settings.name;
       }
 
       $scope.mapped = [];
+      
+      $scope.updateNewStock = function() {
+        calculateStockValuesOne($scope.newStock);
+      }
       
       $scope.getStocks = function(val) {
         /*** symbol lookup based on user input
@@ -195,29 +204,14 @@ angular.module('StockPortfolioSimulator.controllers', [])
         return $scope.mapped;
       }
       
+      $scope.selectStock = function (item) {
+        getStockPricesNew();
+      }
+      
       $scope.addStock = function () {
-        var stringStartDate = $scope.newPortfolio.startDate.getFullYear() + "-" +
-          ($scope.newPortfolio.startDate.getMonth() + 1) + "-" +
-          $scope.newPortfolio.startDate.getDate();
-        FinancialRequests.getHistoricStockInfo($scope.newStock.name, stringStartDate)
-          .then(function(data) {
-            var price = "N/A";
-            price = 1;
-            if (data.query.results) {
-              var stockInfo = data.query.results.quote;
-              price = stockInfo.Close;
-            }
-            $scope.newPortfolio.stocks.push ({
-              "symbol": $scope.newStock.name,
-              "shares": $scope.newStock.shares,
-              // Potentially remove below, can calculate/retrieve on fly
-              "price": price,
-              "value": Number($scope.newStock.shares) * Number(price),
-            });
-            $scope.newStock = {};
-          }, function(error) {
-            // Add error message
-          });
+        $scope.newPortfolio.stocks.push($scope.newStock);
+        $scope.newStock = {};
+        calculatePortfolioValues();
       };
       
       $scope.removeStock = function (index) {
@@ -226,11 +220,6 @@ angular.module('StockPortfolioSimulator.controllers', [])
       };
       
       $scope.savePortfolio = function (name) {
-        $scope.newPortfolio.startValue = 0;
-        $scope.newPortfolio.stocks.forEach(function(stock) {
-          $scope.newPortfolio.startValue += stock.value;
-        });
-        console.log($scope.newPortfolio);
         $scope.newPortfolio.startTime = $scope.newPortfolio.startDate.getTime();
         if ($scope.newPortfolio.endDate) {
           $scope.newPortfolio.endTime = $scope.newPortfolio.endDate.getTime();
@@ -238,6 +227,79 @@ angular.module('StockPortfolioSimulator.controllers', [])
         $scope.portfolios[ref.push().key()] = $scope.newPortfolio;
         $location.path("/dashboard");
       };
+      
+      function getStockPricesNew () {
+        // Starting price
+        var stringStartDate = $scope.newPortfolio.startDate.getFullYear() + "-" +
+          ($scope.newPortfolio.startDate.getMonth() + 1) + "-" +
+          $scope.newPortfolio.startDate.getDate();
+        FinancialRequests.getHistoricStockInfo($scope.newStock.symbol, stringStartDate)
+          .then(function(data) {
+            if (data.query.results) {
+              var stockInfo = data.query.results.quote;
+              $scope.newStock.startPrice = stockInfo.Close;
+            }
+            else {
+              $scope.newStock.startPrice = 0;
+            }
+          }, function(error) {
+            // Add error message
+            console.log(error);
+          });
+          
+          // End price is based on whether an end date is provided
+        
+        if ($scope.newPortfolio.endDate) {
+          var stringEndDate = $scope.newPortfolio.endDate.getFullYear() + "-" +
+            ($scope.newPortfolio.endDate.getMonth() + 1) + "-" +
+            $scope.newPortfolio.endDate.getDate();
+          FinancialRequests.getHistoricStockInfo($scope.newStock.symbol, stringEndDate)
+            .then(function(data) {
+              if (data.query.results) {
+                var stockInfo = data.query.results.quote;
+                $scope.newStock.endPrice = stockInfo.Close;
+              }
+              else {
+                $scope.newStock.endPrice = 0;
+              }
+            }, function(error) {
+              // Add error message
+              console.log(error);
+            });
+        }
+        else {
+          FinancialRequests.getStockInfo($scope.newStock.symbol).then(function(stocks) {
+            // Should only be single symbol
+            // stocks[0].l needs to be converted to a number
+            $scope.newStock.endPrice = Number(stocks[0].l);
+          }, function(error) {
+            // Add error message
+            console.log(error);
+          });
+        }
+      }
+      
+      function getStockPricesAll () {
+        
+        
+      }
+      
+      function calculateStockValuesOne(stock) {
+        // Only calculate if shares and prices have already been calculated
+        if (stock.shares && stock.startPrice && stock.endPrice) {
+          stock.startValue = parseInt(stock.shares) * Number(stock.startPrice);
+          stock.endValue = parseInt(stock.shares) * Number(stock.endPrice);
+        }
+      }
+      
+      function calculatePortfolioValues() {
+        $scope.newPortfolio.startValue = 0;
+        $scope.newPortfolio.endValue = 0;
+        $scope.newPortfolio.stocks.forEach(function(stock) {
+          $scope.newPortfolio.startValue += Number(stock.startValue);
+          $scope.newPortfolio.endValue += Number(stock.endValue);
+        });
+      }
     }
   ])
   

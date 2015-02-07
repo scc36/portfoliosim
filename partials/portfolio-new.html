@@ -32,17 +32,21 @@
           <tr class="info">
             <th>Stock Symbol</th>
             <th># Shares</th>
-            <th>Current Stock Price</th>
-            <th>Value</th>
-            <th>Remove Stock</th>
+            <th>Starting Price</th>
+            <th>Ending Price</th>
+            <th>Starting Value</th>
+            <th>Ending Value</th>
+            <th>Remove</th>
           </tr>
         </thead>
         <tbody>
           <tr ng-repeat="stock in newPortfolio.stocks">
             <td>{{stock.symbol}}</td>
             <td>{{stock.shares}}</td>
-            <td><input type="number" ng-model="stock.price"></td>
-            <td>{{stock.value}}</td>
+            <td>{{stock.startPrice}}</td>
+            <td>{{stock.endPrice}}</td>
+            <td>{{stock.startValue}}</td>
+            <td>{{stock.endValue}}</td>
             <td>
               <button ng-click="removeStock($index)" type="button" class="btn btn-xs btn-danger">
                 <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>Remove</td>
@@ -52,11 +56,23 @@
           
           <tr>
             <td>
-              <input type="text" ng-model="newStock.name" placeholder="Type in stock name" typeahead="stock.value as stock.label for stock in getStocks($viewValue)" typeahead-loading="loadingStocks" class="form-control" required />
+              <input type="text" ng-model="newStock.symbol" placeholder="Type in stock name" typeahead="stock.value as stock.label for stock in getStocks($viewValue)" typeahead-on-select="selectStock($item)" typeahead-loading="loadingStocks" class="form-control" required />
               <i ng-show="loadingStocks" class="glyphicon glyphicon-refresh"> Getting suggestions</i>
             </td>
             <td>
-              <input type="number" ng-model="newStock.shares" min="1" placeholder="Amount of shares"class="form-control" required />
+              <input type="number" ng-model="newStock.shares" min="1" ng-change="updateNewStock()" placeholder="Amount of shares" class="form-control" required />
+            </td>
+            <td>
+              <input type="number" ng-model="newStock.startPrice" class="form-control" />
+            </td>
+            <td>
+              <input type="number" ng-model="newStock.endPrice" class="form-control" />
+            </td>
+            <td>
+              {{newStock.startValue}}
+            </td>
+            <td>
+              {{newStock.endValue}}
             </td>
             <td>
               <button ng-click="addStock(newStock)" ng-disabled="!newStockInfo.$valid" type="button" class="btn btn-success">
@@ -65,12 +81,12 @@
             </td>
           </tr>
           <tr ng-show="newStockInfo.$error.required">
-            <td class="alert alert-warning" role="alert">
-              Required fields need to be filled in
+            <td colspan="99" class="alert alert-warning" role="alert">
+              Enter in a Stock Symbol and # of shares to acquire
             </td>
           </tr>
           <tr ng-show="newStockInfo.$error.number || newStockInfo.$error.min">
-            <td class="alert alert-warning" role="alert">
+            <td colspan="99" class="alert alert-warning" role="alert">
               Not a valid number for shares
             </td>
           </tr>
@@ -79,7 +95,26 @@
       </form>
     </div>
     
-    <button ng-click="savePortfolio()" type="button" class="btn btn-info">
+    <div class="row">
+      <div class="col-md-6">
+        <div class="panel panel-default">
+          <div class="panel-heading">Portfolio Starting Value</div>
+          <div class="panel-body">
+            ${{newPortfolio.startValue}}
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="panel panel-default">
+          <div class="panel-heading">Portfolio Ending Value</div>
+          <div class="panel-body">
+            ${{newPortfolio.endValue}}
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <button ng-click="savePortfolio()" ng-disabled="!newPortfolioInfo.$valid" type="button" class="btn btn-info">
       <span class="glyphicon glyphicon-save" aria-hidden="true"></span>Save New Portfolio</td>
     </button>
   </div>
