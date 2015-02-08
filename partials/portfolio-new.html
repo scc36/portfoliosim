@@ -11,7 +11,7 @@
         <input type="date" id="startDate" name="startDate" ng-model="newPortfolio.startDate" class="form-control" placeholder="yyyy-MM-dd" required />
       </div>
       <div class="form-group col-md-3">
-        <label for="portfolioEnd">End Date</label>
+        <label for="portfolioEnd">End Date (Optional)</label>
         <input type="date" id="endDate" name="endDate" ng-model="newPortfolio.endDate" class="form-control" placeholder="yyyy-MM-dd" />
       </div>
       
@@ -75,7 +75,7 @@
               {{newStock.endValue}}
             </td>
             <td>
-              <button ng-click="addStock(newStock)" ng-disabled="!newStockInfo.$valid" type="button" class="btn btn-success">
+              <button ng-click="addStock(newStock)" ng-disabled="!newStockInfo.$valid || !newPortfolioInfo.$valid" type="button" class="btn btn-success">
                 <span class="glyphicon glyphicon-add" aria-hidden="true"></span>Add Stock</td>
               </button>
             </td>
@@ -96,7 +96,7 @@
     </div>
     
     <div class="row">
-      <div class="col-md-6">
+      <div class="col-md-4">
         <div class="panel panel-default">
           <div class="panel-heading">Portfolio Starting Value</div>
           <div class="panel-body">
@@ -104,7 +104,7 @@
           </div>
         </div>
       </div>
-      <div class="col-md-6">
+      <div class="col-md-4">
         <div class="panel panel-default">
           <div class="panel-heading">Portfolio Ending Value</div>
           <div class="panel-body">
@@ -112,9 +112,20 @@
           </div>
         </div>
       </div>
+      <div class="col-md-4">
+        <div class="panel panel-default">
+          <div class="panel-heading">Value Change</div>
+          <div class="panel-body">
+            {{100 * (newPortfolio.endValue - newPortfolio.startValue) / newPortfolio.startValue}}%
+          </div>
+        </div>
+      </div>
     </div>
     
-    <button ng-click="savePortfolio()" ng-disabled="!newPortfolioInfo.$valid" type="button" class="btn btn-info">
+    <div ng-show="newPortfolio.stocks <= 0" class="alert-warning">
+      Add some stocks to your portfolio
+    </div>
+    <button ng-click="savePortfolio()" ng-disabled="!newPortfolioInfo.$valid || newPortfolio.stocks <= 0" type="button" class="btn btn-info">
       <span class="glyphicon glyphicon-save" aria-hidden="true"></span>Save New Portfolio</td>
     </button>
   </div>

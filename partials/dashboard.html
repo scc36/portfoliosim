@@ -3,12 +3,12 @@
     <div id="portfolio-summary" class="row">
       <div class="col-md-4">
         <h3 class="text-center">Your Best Portfolio</h3>
-        <h1><div class="text-center text-success">0.0</div></h1>
+        <h1><div class="text-center text-success">{{bestPortfolio.increase}}%</div></h1>
         <p class="text-center">{{bestPortfolio.name}}</p>
       </div>
       <div class="col-md-4">
         <h3 class="text-center">Your Worst Portfolio</h3>
-        <h1><div class="text-center text-danger">0.0</div></h1>
+        <h1><div class="text-center text-danger">{{worstPortfolio.increase}}%</div></h1>
         <p class="text-center">{{worstPortfolio.name}}</p>
       </div>
     </div>

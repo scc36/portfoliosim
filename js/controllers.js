@@ -62,12 +62,35 @@ angular.module('StockPortfolioSimulator.controllers', [])
 
       // Gather data from service
       syncObject.$loaded().then(function(sync) {
-        ;
+        // Convert time to date
+        $scope.portfolio.startDate = new Date($scope.portfolio.startTime);
+        $scope.portfolio.startDateString = ($scope.portfolio.startDate.getMonth() + 1) + "/" +
+          $scope.portfolio.startDate.getDate() + "/" +
+          $scope.portfolio.startDate.getFullYear();
+        if ($scope.portfolio.endTime) {
+          $scope.portfolio.endDate = new Date($scope.portfolio.endTime);
+          $scope.portfolio.endDateString = ($scope.portfolio.endDate.getMonth() + 1) + "/" +
+          $scope.portfolio.endDate.getDate() + "/" +
+          $scope.portfolio.endDate.getFullYear();
+        }
+        else {
+          $scope.portfolio.endDate = "";
+          calculatePortfolioValues();
+        }
       });
       
       $scope.clonePortfolio = function() {
         User.newPortfolio = $scope.portfolio;
         $location.path("/clone");
+      }
+      
+      function calculatePortfolioValues() {
+        $scope.portfolio.startValue = 0;
+        $scope.portfolio.endValue = 0;
+        $scope.portfolio.stocks.forEach(function(stock) {
+          $scope.portfolio.startValue += Number(stock.startValue);
+          $scope.portfolio.endValue += Number(stock.endValue);
+        });
       }
     }
   ])
@@ -79,8 +102,13 @@ angular.module('StockPortfolioSimulator.controllers', [])
     function ($scope, $location, $q, $firebase, _, currentAuth, User, FinancialRequests) {
       $scope.settings = User.settings;
       $scope.count = 0;
-      $scope.bestPortfolio = "";
-      $scope.worstPortfolio = "";
+      
+      $scope.bestPortfolio = {};
+      $scope.bestPortfolio.name = "";
+      $scope.bestPortfolio.increase = 0.0;
+      $scope.worstPortfolio = {};
+      $scope.worstPortfolio.name = "";
+      $scope.worstPortfolio.increase = 0.0;
       
       // Initialize Firebase
       var ref = new Firebase("https://portfoliosim.firebaseio.com/portfolios/");
@@ -93,7 +121,6 @@ angular.module('StockPortfolioSimulator.controllers', [])
       
       // on data load
       syncObject.$loaded().then(function() {
-        $scope.portfolioList;
         _.each($scope.portfolioList, function(portfolio) {
           // Only look over actual portfolio objects
           if (portfolio && typeof portfolio === 'object') {
@@ -111,6 +138,7 @@ angular.module('StockPortfolioSimulator.controllers', [])
                 stocks.forEach(function(stock, index) {
                   portfolio.endValue += stock.l * portfolio.stocks[index].shares;
                 });
+                RankPortfolios();
               }, function(error) {
                 // Add error message
               });
@@ -123,18 +151,38 @@ angular.module('StockPortfolioSimulator.controllers', [])
       });
       
       function RankPortfolios() {
-        var bestDiff;
-        var worstDiff;
+        $scope.bestPortfolio.name = "";
+        $scope.bestPortfolio.increase = 0.0;
+        $scope.worstPortfolio.name = "";
+        $scope.worstPortfolio.increase = 0.0;
         _.each($scope.portfolioList, function(portfolio) {
-          
+          if (portfolio && typeof portfolio === 'object') {
+            var increase = 100 * Number(portfolio.endValue - portfolio.startValue) / portfolio.startValue;
+            if (!$scope.bestPortfolio.name) {
+              $scope.bestPortfolio.name = portfolio.name;
+              $scope.bestPortfolio.increase = increase;
+              $scope.worstPortfolio.name = portfolio.name;
+              $scope.worstPortfolio.increase = increase;
+            }
+            else {
+              if (increase > $scope.bestPortfolio.increase) {
+                $scope.bestPortfolio.name = portfolio.name;
+                $scope.bestPortfolio.increase = increase;
+              }
+              if (increase < $scope.worstPortfolio.increase) {
+                $scope.worstPortfolio.name = portfolio.name;
+                $scope.worstPortfolio.increase = increase;
+              }
+            }
+          }
         });
       }
     }
   ])
   
   /***** NEW PORTFOLIO *****/
-  .controller('PortfolioNewCtrl', ['$scope', '$route', '$http', '$location', '$firebase', 'User', 'FinancialRequests',
-    function ($scope, $route, $http, $location, $firebase, User, FinancialRequests) {
+  .controller('PortfolioNewCtrl', ['$scope', '$route', '$http', '$location', '$firebase', '_', 'User', 'FinancialRequests',
+    function ($scope, $route, $http, $location, $firebase, _, User, FinancialRequests) {
       $scope.settings = User.settings;
       $scope.createMode = "new"
       $scope.createMode = $route.current.createMode
@@ -229,19 +277,24 @@ angular.module('StockPortfolioSimulator.controllers', [])
       };
       
       function getStockPricesNew () {
+        getStockPricesOne($scope.newStock);
+      }
+      
+      function getStockPricesOne (stock) {
         // Starting price
         var stringStartDate = $scope.newPortfolio.startDate.getFullYear() + "-" +
           ($scope.newPortfolio.startDate.getMonth() + 1) + "-" +
           $scope.newPortfolio.startDate.getDate();
-        FinancialRequests.getHistoricStockInfo($scope.newStock.symbol, stringStartDate)
+        FinancialRequests.getHistoricStockInfo(stock.symbol, stringStartDate)
           .then(function(data) {
             if (data.query.results) {
               var stockInfo = data.query.results.quote;
-              $scope.newStock.startPrice = stockInfo.Close;
+              stock.startPrice = stockInfo.Close;
             }
             else {
-              $scope.newStock.startPrice = 0;
+              stock.startPrice = 0;
             }
+            calculateStockValuesOne(stock);
           }, function(error) {
             // Add error message
             console.log(error);
@@ -253,25 +306,27 @@ angular.module('StockPortfolioSimulator.controllers', [])
           var stringEndDate = $scope.newPortfolio.endDate.getFullYear() + "-" +
             ($scope.newPortfolio.endDate.getMonth() + 1) + "-" +
             $scope.newPortfolio.endDate.getDate();
-          FinancialRequests.getHistoricStockInfo($scope.newStock.symbol, stringEndDate)
+          FinancialRequests.getHistoricStockInfo(stock.symbol, stringEndDate)
             .then(function(data) {
               if (data.query.results) {
                 var stockInfo = data.query.results.quote;
-                $scope.newStock.endPrice = stockInfo.Close;
+                stock.endPrice = stockInfo.Close;
               }
               else {
-                $scope.newStock.endPrice = 0;
+                stock.endPrice = 0;
               }
+              calculateStockValuesOne(stock);
             }, function(error) {
               // Add error message
               console.log(error);
             });
         }
         else {
-          FinancialRequests.getStockInfo($scope.newStock.symbol).then(function(stocks) {
+          FinancialRequests.getStockInfo(stock.symbol).then(function(stocks) {
             // Should only be single symbol
             // stocks[0].l needs to be converted to a number
-            $scope.newStock.endPrice = Number(stocks[0].l);
+            stock.endPrice = Number(stocks[0].l);
+            calculateStockValuesOne(stock);
           }, function(error) {
             // Add error message
             console.log(error);
@@ -280,8 +335,11 @@ angular.module('StockPortfolioSimulator.controllers', [])
       }
       
       function getStockPricesAll () {
-        
-        
+        console.log("updating");
+        _.each($scope.newPortfolio.stocks, function(stock) {
+          console.log(stock);
+          getStockPricesOne(stock);
+        });
       }
       
       function calculateStockValuesOne(stock) {
