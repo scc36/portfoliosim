@@ -41,12 +41,12 @@
         </thead>
         <tbody>
           <tr ng-repeat="stock in newPortfolio.stocks">
-            <td>{{stock.symbol}}</td>
+            <td><a href="http://finance.yahoo.com/q?s={{stock.symbol}}" target="_blank">{{stock.symbol}}</a></td>
             <td>{{stock.shares}}</td>
             <td>{{stock.startPrice}}</td>
             <td>{{stock.endPrice}}</td>
-            <td>{{stock.startValue}}</td>
-            <td>{{stock.endValue}}</td>
+            <td>${{stock.startValue}}</td>
+            <td>${{stock.endValue}}</td>
             <td>
               <button ng-click="removeStock($index)" type="button" class="btn btn-xs btn-danger">
                 <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>Remove</td>
@@ -63,16 +63,16 @@
               <input type="number" ng-model="newStock.shares" min="1" ng-change="updateNewStock()" placeholder="Amount of shares" class="form-control" required />
             </td>
             <td>
-              <input type="number" ng-model="newStock.startPrice" class="form-control" />
+              <p class="form-control-static">{{newStock.startPrice}}</p>
             </td>
             <td>
-              <input type="number" ng-model="newStock.endPrice" class="form-control" />
+              <p class="form-control-static">{{newStock.endPrice}}</p>
             </td>
             <td>
-              {{newStock.startValue}}
+              <p class="form-control-static">${{newStock.startValue}}</p>
             </td>
             <td>
-              {{newStock.endValue}}
+              <p class="form-control-static">${{newStock.endValue}}</p>
             </td>
             <td>
               <button ng-click="addStock(newStock)" ng-disabled="!newStockInfo.$valid || !newPortfolioInfo.$valid" type="button" class="btn btn-success">

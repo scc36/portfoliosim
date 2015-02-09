@@ -282,14 +282,10 @@ angular.module('StockPortfolioSimulator.controllers', [])
       
       function getStockPricesOne (stock) {
         // Starting price
-        var stringStartDate = $scope.newPortfolio.startDate.getFullYear() + "-" +
-          ($scope.newPortfolio.startDate.getMonth() + 1) + "-" +
-          $scope.newPortfolio.startDate.getDate();
-        FinancialRequests.getHistoricStockInfo(stock.symbol, stringStartDate)
+        FinancialRequests.getStockPrice(stock.symbol, $scope.newPortfolio.startDate)
           .then(function(data) {
-            if (data.query.results) {
-              var stockInfo = data.query.results.quote;
-              stock.startPrice = stockInfo.Close;
+            if (data.price) {
+              stock.startPrice = Number(data.price);
             }
             else {
               stock.startPrice = 0;
@@ -299,39 +295,20 @@ angular.module('StockPortfolioSimulator.controllers', [])
             // Add error message
             console.log(error);
           });
-          
-          // End price is based on whether an end date is provided
         
-        if ($scope.newPortfolio.endDate) {
-          var stringEndDate = $scope.newPortfolio.endDate.getFullYear() + "-" +
-            ($scope.newPortfolio.endDate.getMonth() + 1) + "-" +
-            $scope.newPortfolio.endDate.getDate();
-          FinancialRequests.getHistoricStockInfo(stock.symbol, stringEndDate)
-            .then(function(data) {
-              if (data.query.results) {
-                var stockInfo = data.query.results.quote;
-                stock.endPrice = stockInfo.Close;
-              }
-              else {
-                stock.endPrice = 0;
-              }
-              calculateStockValuesOne(stock);
-            }, function(error) {
-              // Add error message
-              console.log(error);
-            });
-        }
-        else {
-          FinancialRequests.getStockInfo(stock.symbol).then(function(stocks) {
-            // Should only be single symbol
-            // stocks[0].l needs to be converted to a number
-            stock.endPrice = Number(stocks[0].l);
+        FinancialRequests.getStockPrice(stock.symbol, $scope.newPortfolio.endDate)
+          .then(function(data) {
+            if (data.price) {
+              stock.endPrice = Number(data.price);
+            }
+            else {
+              stock.endPrice = 0;
+            }
             calculateStockValuesOne(stock);
           }, function(error) {
             // Add error message
             console.log(error);
           });
-        }
       }
       
       function getStockPricesAll () {
