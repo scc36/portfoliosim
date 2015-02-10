@@ -65,8 +65,21 @@
       </div>
     </div>
     
-    <button ng-click="clonePortfolio()" type="button" class="btn btn-info">
-      <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>Clone Portfolio</td>
-    </button>
+    <div class="row">
+      <div class="col-md-4">
+        <button ng-click="clonePortfolio()" type="button" class="btn btn-info">
+          <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>Clone Portfolio</td>
+        </button>
+      </div>
+      <div class="col-md-4">
+        <div class="fb-like" data-href="http://portfoliosim.centrum.webfactional.com/#/portfolio/{{portfolioName}}" data-layout="button_count" data-action="recommend" data-show-faces="true" data-share="true"></div>
+      </div>
+    </div>
+    
+    <hr>
+    <button class="btn btn-default" ng-click="showComments = !showComments">Comment on this portfolio</button>
+    <div collapse="!showComments">
+      <div class="fb-comments" data-href="http://portfoliosim.centrum.webfactional.com/#/portfolio/{{portfolioName}}" data-numposts="5" data-colorscheme="light"></div>
+    </div>
   </div>
 </div>

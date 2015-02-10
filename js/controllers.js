@@ -213,6 +213,8 @@ angular.module('StockPortfolioSimulator.controllers', [])
         $scope.newPortfolio.endValue = 0;
         $scope.newPortfolio.stocks = [];
         $scope.newPortfolio.owner = $scope.settings.name;
+        $scope.newPortfolio.owner = $scope.settings.id;
+        console.log($scope.settings);
       }
 
       $scope.mapped = [];
