@@ -98,8 +98,8 @@ angular.module('StockPortfolioSimulator.controllers', [])
   /************* END PUBLIC PAGES *************/
   
   /***** DASHBOARD *****/
-  .controller('DashCtrl', ['$scope', '$location', '$q', '$firebase', '_', 'currentAuth', 'User', 'FinancialRequests',
-    function ($scope, $location, $q, $firebase, _, currentAuth, User, FinancialRequests) {
+  .controller('DashCtrl', ['$scope', '$location', '$firebase', '_', 'currentAuth', 'User', 'FinancialRequests', 'FeedService',
+    function ($scope, $location, $firebase, _, currentAuth, User, FinancialRequests, FeedService) {
       $scope.settings = User.settings;
       $scope.count = 0;
       
@@ -118,6 +118,13 @@ angular.module('StockPortfolioSimulator.controllers', [])
       
       // bind firebase to scope.data
       syncObject.$bindTo($scope, "portfolioList");
+      
+      // build news feed
+      // source: http://www.ivivelabs.com/blog/making-a-quick-rss-feed-reader-using-angularjs/
+      var feedUrl = "http://news.google.com/news?pz=1&cf=all&ned=us&hl=en&topic=b&output=rss";
+      FeedService.parseFeed(feedUrl).then(function(res){
+        $scope.feeds=res.data.responseData.feed;
+      });
       
       // on data load
       syncObject.$loaded().then(function() {
