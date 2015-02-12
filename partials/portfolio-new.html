@@ -75,7 +75,7 @@
               <p class="form-control-static">${{newStock.endValue}}</p>
             </td>
             <td>
-              <button ng-click="addStock(newStock)" ng-disabled="!newStockInfo.$valid || !newPortfolioInfo.$valid" type="button" class="btn btn-success">
+              <button ng-click="addStock(newStock)" ng-disabled="!newStockInfo.$valid || !newPortfolioInfo.$valid || !newStock.startPrice || !newStock.endPrice" type="button" class="btn btn-success">
                 <span class="glyphicon glyphicon-add" aria-hidden="true"></span>Add Stock</td>
               </button>
             </td>
@@ -90,6 +90,11 @@
               Not a valid number for shares
             </td>
           </tr>
+          <tr ng-show="(newStock.symbol) && (!newStock.startPrice || !newStock.endPrice)">
+            <td colspan="99" class="alert alert-warning" role="alert">
+              Error getting the stock price of the entered symbol
+            </td>
+          </tr>
         </tbody>
       </table>
       </form>
@@ -100,7 +105,7 @@
         <div class="panel panel-default">
           <div class="panel-heading">Portfolio Starting Value</div>
           <div class="panel-body">
-            ${{newPortfolio.startValue}}
+            {{newPortfolio.startValue | currency}}
           </div>
         </div>
       </div>
@@ -108,25 +113,31 @@
         <div class="panel panel-default">
           <div class="panel-heading">Portfolio Ending Value</div>
           <div class="panel-body">
-            ${{newPortfolio.endValue}}
+            {{newPortfolio.endValue | currency}}
           </div>
         </div>
       </div>
       <div class="col-md-4">
-        <div class="panel panel-default">
+        <div class="panel panel-success">
           <div class="panel-heading">Value Change</div>
           <div class="panel-body">
-            {{100 * (newPortfolio.endValue - newPortfolio.startValue) / newPortfolio.startValue}}%
+            {{100 * (newPortfolio.endValue - newPortfolio.startValue) / newPortfolio.startValue | number:2}}%
           </div>
         </div>
       </div>
     </div>
     
-    <div ng-show="newPortfolio.stocks <= 0" class="alert-warning">
-      Add some stocks to your portfolio
+    <div class="row">
+      <div class="col-md-2">
+        <button ng-click="savePortfolio()" ng-disabled="!newPortfolioInfo.$valid || newPortfolio.stocks <= 0" type="button" class="btn btn-info">
+          <span class="glyphicon glyphicon-save" aria-hidden="true"></span>Save New Portfolio</td>
+        </button>
+      </div>
+      <div class="col-md-6">
+        <div ng-show="newPortfolio.stocks <= 0" class="alert alert-warning">
+          Add some stocks to your portfolio
+        </div>
+      </div>
     </div>
-    <button ng-click="savePortfolio()" ng-disabled="!newPortfolioInfo.$valid || newPortfolio.stocks <= 0" type="button" class="btn btn-info">
-      <span class="glyphicon glyphicon-save" aria-hidden="true"></span>Save New Portfolio</td>
-    </button>
   </div>
 </div>

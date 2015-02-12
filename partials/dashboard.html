@@ -3,12 +3,12 @@
     <div id="portfolio-summary" class="row">
       <div class="col-md-4">
         <h3 class="text-center">Your Best Portfolio</h3>
-        <h1><div class="text-center text-success">{{bestPortfolio.increase}}%</div></h1>
+        <h1><div class="text-center text-success">{{bestPortfolio.increase | number:2}}%</div></h1>
         <p class="text-center">{{bestPortfolio.name}}</p>
       </div>
       <div class="col-md-4">
         <h3 class="text-center">Your Worst Portfolio</h3>
-        <h1><div class="text-center text-danger">{{worstPortfolio.increase}}%</div></h1>
+        <h1><div class="text-center text-danger">{{worstPortfolio.increase | number:2}}%</div></h1>
         <p class="text-center">{{worstPortfolio.name}}</p>
       </div>
     </div>
@@ -27,8 +27,8 @@
           <tr ng-repeat="(key, portfolio) in portfolioList">
             <td><a href=#/portfolio/{{key}}>{{portfolio.name}}</a></td>
             <td>{{portfolio.stocks.length}}</td>
-            <td>${{portfolio.startValue}}</td>
-            <td>${{portfolio.endValue}}</td>
+            <td>{{portfolio.startValue | currency}}</td>
+            <td>{{portfolio.endValue | currency}}</td>
           </tr>
         </tbody>
       </table>

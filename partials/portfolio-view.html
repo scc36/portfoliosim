@@ -6,10 +6,10 @@
         <h4>Created By: <i>{{portfolio.owner}}</i></h4>
       </div>
       <div class="form-group col-md-4">
-        <h4>Starting: <i>{{portfolio.startDateString}}</i></h4>
+        <h4>Starting: <i>{{portfolio.startDate | date:'MMM d, yyyy'}}</i></h4>
       </div>
       <div class="form-group col-md-4">
-        <h4 ng-show="portfolio.endDate">Ending: <i>{{portfolio.endDateString}}</i></h4>
+        <h4 ng-show="portfolio.endDate">Ending: <i>{{portfolio.endDate | date:'MMM d, yyyy'}}</i></h4>
         <h4 ng-hide="portfolio.endDate">Ending: <i>Today</i></h4>
       </div>
     </div>
@@ -31,8 +31,8 @@
             <td>{{stock.shares}}</td>
             <td>{{stock.startPrice}}</td>
             <td>{{stock.endPrice}}</td>
-            <td>${{stock.startValue}}</td>
-            <td>${{stock.endValue}}</td>
+            <td>{{stock.startValue | currency}}</td>
+            <td>{{stock.endValue | currency}}</td>
           </tr>
         </tbody>
       </table>
@@ -43,7 +43,7 @@
         <div class="panel panel-default">
           <div class="panel-heading">Portfolio Starting Value</div>
           <div class="panel-body">
-            ${{portfolio.startValue}}
+            {{portfolio.startValue | currency}}
           </div>
         </div>
       </div>
@@ -51,15 +51,15 @@
         <div class="panel panel-default">
           <div class="panel-heading">Portfolio Ending Value</div>
           <div class="panel-body">
-            ${{portfolio.endValue}}
+            {{portfolio.endValue | currency}}
           </div>
         </div>
       </div>
       <div class="col-md-4">
-        <div class="panel panel-default">
+        <div class="panel panel-success">
           <div class="panel-heading">Value Change</div>
           <div class="panel-body">
-            {{100 * (portfolio.endValue - portfolio.startValue) / portfolio.startValue}}%
+            {{100 * (portfolio.endValue - portfolio.startValue) / portfolio.startValue | number:2}}%
           </div>
         </div>
       </div>
@@ -72,14 +72,14 @@
         </button>
       </div>
       <div class="col-md-4">
-        <div class="fb-like" data-href="http://scc36.github.io/portfoliosim/#/portfolio/{{portfolioName}}" data-layout="button_count" data-action="recommend" data-show-faces="true" data-share="true"></div>
+        <div class="fb-like" data-href="{{siteUrl}}" data-layout="button_count" data-action="recommend" data-show-faces="true" data-share="true"></div>
       </div>
     </div>
     
     <hr>
     <button class="btn btn-default" ng-click="showComments = !showComments">Comment on this portfolio</button>
     <div collapse="!showComments">
-      <div class="fb-comments" data-href="http://scc36.github.io/portfoliosim/#/portfolio/{{portfolioName}}" data-numposts="5" data-colorscheme="light"></div>
+      <div class="fb-comments" data-href="{{siteUrl}}" data-numposts="5" data-colorscheme="light"></div>
     </div>
   </div>
 </div>

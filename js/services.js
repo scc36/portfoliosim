@@ -77,14 +77,6 @@ angular.module('StockPortfolioSimulator.services', [])
       
       // *** Helper functions
       
-      // Converts a date object to a string (yyyy-mm-dd)
-      dateToSimpleString: function(date) {
-        var stringDate = date.getFullYear() + "-" +
-                         (date.getMonth() + 1) + "-" +
-                         date.getDate();
-        return stringDate;
-      },
-      
       // *** Common response processing
       
       // interpret google stock response, returns a price object

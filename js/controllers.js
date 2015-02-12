@@ -47,6 +47,7 @@ angular.module('StockPortfolioSimulator.controllers', [])
   .controller('PortfolioViewCtrl', ['$scope', '$location', '$routeParams', '$firebase', '_', 'User',
     function ($scope, $location, $routeParams, $firebase, _, User) {
       // Gather data from service
+      $scope.siteUrl = $location.absUrl();
       $scope.portfolioName = $routeParams.portfolioId;
       $scope.portfolio = {};
       $scope.portfolio.stocks = {};
@@ -64,14 +65,8 @@ angular.module('StockPortfolioSimulator.controllers', [])
       syncObject.$loaded().then(function(sync) {
         // Convert time to date
         $scope.portfolio.startDate = new Date($scope.portfolio.startTime);
-        $scope.portfolio.startDateString = ($scope.portfolio.startDate.getMonth() + 1) + "/" +
-          $scope.portfolio.startDate.getDate() + "/" +
-          $scope.portfolio.startDate.getFullYear();
         if ($scope.portfolio.endTime) {
           $scope.portfolio.endDate = new Date($scope.portfolio.endTime);
-          $scope.portfolio.endDateString = ($scope.portfolio.endDate.getMonth() + 1) + "/" +
-          $scope.portfolio.endDate.getDate() + "/" +
-          $scope.portfolio.endDate.getFullYear();
         }
         else {
           $scope.portfolio.endDate = "";
@@ -206,13 +201,15 @@ angular.module('StockPortfolioSimulator.controllers', [])
       // bind firebase to scope.data
       syncObject.$bindTo($scope, "portfolios");
 
+      // Fill in portfolio info, based on new or clone
       if ($scope.createMode == "clone") {
         $scope.newPortfolio = User.newPortfolio;
         $scope.newPortfolio.owner = $scope.settings.name;
+        $scope.newPortfolio.owner = $scope.settings.name;
+        $scope.newPortfolio.ownerId = $scope.settings.id;
       }
       //createMode == "new"
       else {
-        $scope.newPortfolio = {}
         $scope.newPortfolio.name = "My Portfolio";
         $scope.newPortfolio.startDate = new Date();
         $scope.newPortfolio.endDate = "";
@@ -220,9 +217,11 @@ angular.module('StockPortfolioSimulator.controllers', [])
         $scope.newPortfolio.endValue = 0;
         $scope.newPortfolio.stocks = [];
         $scope.newPortfolio.owner = $scope.settings.name;
-        $scope.newPortfolio.owner = $scope.settings.id;
-        console.log($scope.settings);
+        $scope.newPortfolio.ownerId = $scope.settings.id;
       }
+      
+      // Initial information for stocks
+      initNewStock();
 
       $scope.mapped = [];
       
@@ -281,9 +280,18 @@ angular.module('StockPortfolioSimulator.controllers', [])
         if ($scope.newPortfolio.endDate) {
           $scope.newPortfolio.endTime = $scope.newPortfolio.endDate.getTime();
         }
+        $scope.newPortfolio.timestamp = new Date().getTime();
         $scope.portfolios[ref.push().key()] = $scope.newPortfolio;
         $location.path("/dashboard");
       };
+      
+      function initNewStock () {
+        $scope.newStock = {};
+        $scope.newStock.startPrice = 0;
+        $scope.newStock.startValue = 0;
+        $scope.newStock.endValue = 0;
+        $scope.newStock.endPrice = 0;
+      }
       
       function getStockPricesNew () {
         getStockPricesOne($scope.newStock);
@@ -297,12 +305,15 @@ angular.module('StockPortfolioSimulator.controllers', [])
               stock.startPrice = Number(data.price);
             }
             else {
+              // Add error message
+              console.log("Price not given");
               stock.startPrice = 0;
             }
             calculateStockValuesOne(stock);
           }, function(error) {
             // Add error message
             console.log(error);
+            stock.startPrice = 0;
           });
         
         FinancialRequests.getStockPrice(stock.symbol, $scope.newPortfolio.endDate)
@@ -311,12 +322,14 @@ angular.module('StockPortfolioSimulator.controllers', [])
               stock.endPrice = Number(data.price);
             }
             else {
+              console.log("Price not given");
               stock.endPrice = 0;
             }
             calculateStockValuesOne(stock);
           }, function(error) {
             // Add error message
             console.log(error);
+            stock.endPrice = 0;
           });
       }
       
