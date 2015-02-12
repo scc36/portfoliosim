@@ -45,8 +45,8 @@
             <td>{{stock.shares}}</td>
             <td>{{stock.startPrice}}</td>
             <td>{{stock.endPrice}}</td>
-            <td>${{stock.startValue}}</td>
-            <td>${{stock.endValue}}</td>
+            <td>{{stock.startValue | currency}}</td>
+            <td>{{stock.endValue | currency}}</td>
             <td>
               <button ng-click="removeStock($index)" type="button" class="btn btn-xs btn-danger">
                 <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>Remove</td>

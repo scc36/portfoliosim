@@ -19,17 +19,12 @@ angular.module('StockPortfolioSimulator.services', [])
   }])
   .factory('FinancialRequests', ['$http', '$q', function($http, $q) {
     return {
-      getHistoricStockInfo: function(symbol, date) {
-        var url = "https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20yahoo.finance.historicaldata%20where%20symbol%20in%20(%22"
-          + symbol + "%22)%20and%20startDate%20%3D%20%22" + date +
-          "%22%20and%20endDate%20%3D%20%22" + date +
-          "%22&format=json&diagnostics=true&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys";
-        url = "http://www.google.com/finance/historical?q=" +
-          symbol + "&histperiod=daily&startdate=" + date +
-          "&enddate=" + date + "&output=csv";
-        return $http.get(url)
-          .then(this.csvResponse, this.error);
-      },
+      /* Gets a current stock's info, given the symbol
+       *  Differs from getStockPrice in that this can handle multiple
+       *    stocks at the same time, and it's possible to glean other
+       *    stock information as well.
+       *  getStockInfo(string)->{}
+       */
       getStockInfo: function(symbol) {
         // can have multiple symbols, comma separated
         //http://finance.google.com/finance/info?client=ig&q=GOOG
@@ -77,6 +72,14 @@ angular.module('StockPortfolioSimulator.services', [])
       
       // *** Helper functions
       
+      // Converts a date object to a string (yyyy-mm-dd)
+      dateToSimpleString: function(date) {
+        var stringDate = date.getFullYear() + "-" +
+                         (date.getMonth() + 1) + "-" +
+                         date.getDate();
+        return stringDate;
+      },
+      
       // *** Common response processing
       
       // interpret google stock response, returns a price object
@@ -91,9 +94,9 @@ angular.module('StockPortfolioSimulator.services', [])
       
       // interpret quandl stock response, returns a price object
       quandlStockReponse: function(response) {
+        console.log(response);
         if (typeof response.data === 'object') {
           var arrayData = response.data.data;
-          console.log(arrayData[0]);
           return {price: arrayData[0][1]};
         } else {
           // invalid response

@@ -96,6 +96,7 @@ angular.module('StockPortfolioSimulator.controllers', [])
   .controller('DashCtrl', ['$scope', '$location', '$firebase', '_', 'currentAuth', 'User', 'FinancialRequests', 'FeedService',
     function ($scope, $location, $firebase, _, currentAuth, User, FinancialRequests, FeedService) {
       $scope.settings = User.settings;
+      $scope.portFilter = "you";
       $scope.count = 0;
       
       $scope.bestPortfolio = {};
@@ -108,11 +109,16 @@ angular.module('StockPortfolioSimulator.controllers', [])
       // Initialize Firebase
       var ref = new Firebase("https://portfoliosim.firebaseio.com/portfolios/");
       // create an AngularFire reference to the data
+      // ** adjust sync based on input
       var sync = $firebase(ref.orderByChild("owner").equalTo(User.settings.name));
+      //var sync = $firebase(ref.limitToFirst(50));
       var syncObject = sync.$asObject();
       
       // bind firebase to scope.data
       syncObject.$bindTo($scope, "portfolioList");
+      
+      // on data load
+      syncObject.$loaded().then(getPortfolios($scope.portfolioList));
       
       // build news feed
       // source: http://www.ivivelabs.com/blog/making-a-quick-rss-feed-reader-using-angularjs/
@@ -121,9 +127,8 @@ angular.module('StockPortfolioSimulator.controllers', [])
         $scope.feeds=res.data.responseData.feed;
       });
       
-      // on data load
-      syncObject.$loaded().then(function() {
-        _.each($scope.portfolioList, function(portfolio) {
+      function getPortfolios(portfolioList) {
+        _.each(portfolioList, function(portfolio) {
           // Only look over actual portfolio objects
           if (portfolio && typeof portfolio === 'object') {
             // Get current prices if endDate is empty:
@@ -140,7 +145,7 @@ angular.module('StockPortfolioSimulator.controllers', [])
                 stocks.forEach(function(stock, index) {
                   portfolio.endValue += stock.l * portfolio.stocks[index].shares;
                 });
-                RankPortfolios();
+                RankPortfolios(portfolioList);
               }, function(error) {
                 // Add error message
               });
@@ -149,15 +154,15 @@ angular.module('StockPortfolioSimulator.controllers', [])
         });
         
         // Find the portfolios with the Highest and Lowest value differences
-        RankPortfolios();
-      });
+        RankPortfolios(portfolioList);
+      }
       
-      function RankPortfolios() {
+      function RankPortfolios(portfolioList) {
         $scope.bestPortfolio.name = "";
         $scope.bestPortfolio.increase = 0.0;
         $scope.worstPortfolio.name = "";
         $scope.worstPortfolio.increase = 0.0;
-        _.each($scope.portfolioList, function(portfolio) {
+        _.each(portfolioList, function(portfolio) {
           if (portfolio && typeof portfolio === 'object') {
             var increase = 100 * Number(portfolio.endValue - portfolio.startValue) / portfolio.startValue;
             if (!$scope.bestPortfolio.name) {
@@ -284,6 +289,11 @@ angular.module('StockPortfolioSimulator.controllers', [])
         $scope.portfolios[ref.push().key()] = $scope.newPortfolio;
         $location.path("/dashboard");
       };
+      
+      $scope.$watchCollection('newPortfolio.startDate', function(newSelection, oldSelection) {
+        console.log(newSelection);
+        console.log(oldSelection);
+      });
       
       function initNewStock () {
         $scope.newStock = {};
