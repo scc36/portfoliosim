@@ -1,18 +1,30 @@
 <div id="app" class="container">
+  <alert ng-hide="hideNewInfo" type="info" close="hideNewInfo = true">
+    Creating a new portfolio: On this page, you can put together a portfolio of stocks, active between two specified dates, and see what return this portfolio would have given.
+    Hover over the question mark next to each field for additional details. The "End Date" field is optional; if left blank, the current stock prices will be used.
+  </alert>
   <div class="row">
     <h3 class="page-header">New Portfolio called: <b>{{newPortfolio.name}}</b></h3>
     <form name="newPortfolioInfo" role="form" novalidate="">
       <div class="form-group col-md-6">
         <label for="portfolioName">Name</label>
+        <span class="glyphicon glyphicon-info-sign" aria-hidden="true" tooltip-animation="false" tooltip="Give your portfolio a meaningful label"></span>
         <input type="text" ng-model="newPortfolio.name" class="form-control" placeholder="Give your portfolio a name" required />
       </div>
       <div class="form-group col-md-3">
         <label for="portfolioStart">Start Date</label>
+        <span class="glyphicon glyphicon-info-sign" aria-hidden="true" tooltip-animation="false" tooltip="What day you hypothetically 'bought' all the stocks"></span>
         <input type="date" id="startDate" name="startDate" ng-model="newPortfolio.startDate" class="form-control" placeholder="yyyy-MM-dd" required />
       </div>
       <div class="form-group col-md-3">
         <label for="portfolioEnd">End Date (Optional)</label>
+        <span class="glyphicon glyphicon-info-sign" aria-hidden="true" tooltip-animation="false" tooltip="Any date after the current date returns the current price, until the day advances past the specified date."></span>
         <input type="date" id="endDate" name="endDate" ng-model="newPortfolio.endDate" class="form-control" placeholder="yyyy-MM-dd" />
+      </div>
+      <div class="form-group">
+        <label for="portfolioName">Description</label>
+        <span class="glyphicon glyphicon-info-sign" aria-hidden="true" tooltip-animation="false" tooltip="Use this space to summarize your thoughts and logic behind this portfolio"></span>
+        <textarea class="form-control" rows="2" ng-model="newPortfolio.description"></textarea>
       </div>
       
       <div ng-show="newPortfolioInfo.$error.required" class="alert alert-danger" role="alert">

@@ -1,4 +1,9 @@
 <div id="app" class="container">
+  <alert ng-hide="hideNewInfo" type="info" close="hideNewInfo = true">
+    Welcome, {{User.settings.name}}. This appears to be the first time you're using Portfoliosim.
+    Here, we have a list of stock portfolios. Normally, we would be showing portfolios you've created, but we're displaying the general list since you haven't created any.
+    <br>From here, you can click on any portfolio to view its details: what stocks are in it, and the time period the portfolio was active for.
+  </alert>
   <div class="col-md-9">
     <div id="portfolio-filter" class="row">
       <div class="btn-group btn-group-justified" role="group" aria-label="What filters to view">
